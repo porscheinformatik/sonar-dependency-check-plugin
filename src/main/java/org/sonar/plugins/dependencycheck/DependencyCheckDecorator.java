@@ -9,8 +9,10 @@ import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.design.Dependency;
+import org.sonar.api.measures.Measure;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Violation;
@@ -24,6 +26,7 @@ public final class DependencyCheckDecorator implements Decorator
     private Project project;
     private List<String> toKeys;
     private Settings settings;
+    private StringBuilder sb = new StringBuilder("");
 
     public DependencyCheckDecorator(RulesProfile rulesProfile, Settings settings)
     {
@@ -41,8 +44,8 @@ public final class DependencyCheckDecorator implements Decorator
     public List<ProjectDependency> getProjectDependencies()
     {
         List<ProjectDependency> result = Lists.newArrayList();
-        String[] allowedDependenciesKey = settings.getStringLines(DependencyCheckMetrics.LIBRARY_KEY_PROPERTY);
-        String[] allowedDependenciesVersion = settings.getStringLines(DependencyCheckMetrics.LIBRARY_VERSION_PROPERTY);
+        String[] allowedDependenciesKey = settings.getStringArray(DependencyCheckMetrics.LIBRARY_KEY_PROPERTY);
+        String[] allowedDependenciesVersion = settings.getStringArray(DependencyCheckMetrics.LIBRARY_VERSION_PROPERTY);
 
         for (int i = 0; i < allowedDependenciesKey.length; i++)
         {
@@ -60,36 +63,58 @@ public final class DependencyCheckDecorator implements Decorator
 
     public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context)
     {
-        ActiveRule activeRule;
-
-        Set<Dependency> dependencies = context.getDependencies();
-        for (Dependency d : dependencies)
+        if (resource.getQualifier() == Qualifiers.PROJECT && resource.getKey() == project.getKey())
         {
-            if (d.getFrom().getKey() == project.getKey() && !toKeys.contains(d.getTo().getKey()))
+            ActiveRule activeRule;
+
+            Set<Dependency> dependencies = context.getDependencies();
+
+            for (Dependency d : dependencies)
             {
-
-                if (!Utilities.dependencyInList(d, getProjectDependencies()))
-                {
-                    activeRule = rulesProfile.getActiveRule(DependencyCheckMetrics.DEPENDENCY_CHECK_KEY,
-                        DependencyCheckMetrics.DEPENDENCY_CHECK_UNLISTED_KEY);
-
-                    Violation v = Violation.create(activeRule, project);
-                    v.setMessage("Dependency: " + d.getTo().getKey() + " is not listed!");
-                    context.saveViolation(v);
-                }
-                else if (!Utilities.dependencyInVersionRange(d, getProjectDependencies()))
+                if (d.getFrom().getKey() == project.getKey() && !toKeys.contains(d.getTo().getKey()))
                 {
 
-                    activeRule = rulesProfile.getActiveRule(DependencyCheckMetrics.DEPENDENCY_CHECK_KEY,
-                        DependencyCheckMetrics.DEPENDENCY_CHECK_WRONG_VERSION_KEY);
+                    if (!Utilities.dependencyInList(d, getProjectDependencies()))
+                    {
+                        activeRule = rulesProfile.getActiveRule(DependencyCheckMetrics.DEPENDENCY_CHECK_KEY,
+                            DependencyCheckMetrics.DEPENDENCY_CHECK_UNLISTED_KEY);
 
-                    Violation v = Violation.create(activeRule, project);
-                    v.setMessage("Dependency: " + d.getTo().getKey() + " is out of the accepted version range!");
-                    context.saveViolation(v);
+                        if (activeRule != null)
+                        {
+                            Violation v = Violation.create(activeRule, project);
+                            v.setMessage("Dependency: " + d.getTo().getKey() + " is not listed!");
+                            context.saveViolation(v);
+                            sb.append(d.getTo().getKey() + ","
+                                + "TODO License" + "," + "Unlisted;");
+                        }
+
+                    }
+                    else if (!Utilities.dependencyInVersionRange(d, getProjectDependencies()))
+                    {
+
+                        activeRule = rulesProfile.getActiveRule(DependencyCheckMetrics.DEPENDENCY_CHECK_KEY,
+                            DependencyCheckMetrics.DEPENDENCY_CHECK_WRONG_VERSION_KEY);
+
+                        if (activeRule != null)
+                        {
+                            Violation v = Violation.create(activeRule, project);
+                            v.setMessage("Dependency: " + d.getTo().getKey() + " is out of the accepted version range!");
+                            context.saveViolation(v);
+                            sb.append(d.getTo().getKey() + ","
+                                + "TODO License" + "," + "Wrong Version;");
+                        }
+                    }
+                    else
+                    {
+                        sb.append(d.getTo().getKey() + ","
+                            + "TODO License" + "," + "OK;");
+                    }
+
+                    toKeys.add(d.getTo().getKey());
                 }
-
-                toKeys.add(d.getTo().getKey());
             }
+
+            context.saveMeasure(new Measure(DependencyCheckMetrics.DEPENDENCY, sb.toString()));
         }
     }
 }

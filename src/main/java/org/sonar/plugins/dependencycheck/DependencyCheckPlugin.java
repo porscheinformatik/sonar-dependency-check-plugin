@@ -46,6 +46,7 @@ public final class DependencyCheckPlugin extends SonarPlugin
         extensions.add(DependencyCheckRuleRepository.class);
         extensions.add(DependencyCheckMetrics.class);
         extensions.add(DependencyCheckDecorator.class);
+        extensions.add(DependencyCheckWidget.class);
         return extensions.build();
     }
 }
