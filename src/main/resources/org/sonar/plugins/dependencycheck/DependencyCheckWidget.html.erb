@@ -2,15 +2,9 @@
 	<b>Dependency Check</b>
 </p>
 
-<% measure = format_measure('dependencycheck', :default => 'test')
+<% measure = @snapshot.measure('dependencycheck').data 
 
 dependencies = measure.split(';') %>
-
-<p>
-	<%= measure %>
-	test
-</p>
-
 
 <table class="width100">
 	<tbody>
@@ -26,7 +20,11 @@ dependencies = measure.split(';') %>
 		<tr>
 			<td><%= d[0] %></td>
 			<td><%= d[1] %></td>
-			<td><%= d[2] %></td>
+			<% if d[2] == 'OK' %>
+			<td style="text-align: center"><%= d[2] %></td>
+			<% else %>
+			<td style="text-align: center"><b><%= d[2] %></b></td>
+			<% end %>
 		</tr>
 		
 		<% end %>

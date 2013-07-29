@@ -20,7 +20,7 @@ public final class DependencyCheckMetrics implements Metrics
     public static final String LIBRARY_VERSION_PROPERTY = "sonar.dependencycheck.lib.version";
 
     public static final Metric DEPENDENCY = new Metric.Builder(DEPENDENCY_CHECK_KEY, "Dependency Check",
-        Metric.ValueType.STRING)
+        Metric.ValueType.DATA)
         .setDescription("Used Dependency")
         .setDirection(Metric.DIRECTION_WORST)
         .setQualitative(true)
