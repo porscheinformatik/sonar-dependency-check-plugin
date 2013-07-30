@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
@@ -28,6 +27,7 @@ public final class DependencyCheckDecorator implements Decorator
     private Project project;
     private List<String> handledToKeys;
     private List<ProjectDependency> allowedProjectDependencies;
+    private List<License> allowedLicenses;
     private Settings settings;
     private StringBuilder sb = new StringBuilder("");
 
@@ -44,39 +44,75 @@ public final class DependencyCheckDecorator implements Decorator
         return "java".equals(project.getLanguage().getKey());
     }
 
-    public List<ProjectDependency> getAllowedProjectDependencies()
+    private List<ProjectDependency> getAllowedProjectDependencies()
     {
         List<ProjectDependency> result = Lists.newArrayList();
-        String[] allowedDependenciesKey = settings.getStringArray(DependencyCheckMetrics.LIBRARY_KEY_PROPERTY);
-        String[] allowedDependenciesVersion = settings.getStringArray(DependencyCheckMetrics.LIBRARY_VERSION_PROPERTY);
+        
+        String[] allowedDependencies = settings.getStringArray(DependencyCheckMetrics.LIBRARY_PROPERTY);
 
-        for (int i = 0; i < allowedDependenciesKey.length; i++)
+        getAllowedLicenses();
+        
+        for (String string : allowedDependencies)
         {
-            if (StringUtils.isNotBlank(allowedDependenciesKey[i]))
+            
+            ProjectDependency pd = new ProjectDependency();
+
+            pd.setKey(settings.getString(DependencyCheckMetrics.LIBRARY_PROPERTY + "." + string + "."
+                + DependencyCheckMetrics.LIBRARY_KEY_PROPERTY));
+            pd.setVersionRange(settings.getString(DependencyCheckMetrics.LIBRARY_PROPERTY + "." + string
+                + "." + DependencyCheckMetrics.LIBRARY_VERSION_PROPERTY));
+            pd.setLicenseName(settings.getString(DependencyCheckMetrics.LIBRARY_PROPERTY + "." + string
+                + "." + DependencyCheckMetrics.LIBRARY_LICENSE_PROPERTY));
+
+            if (pd.getKey() != null && !pd.getKey().isEmpty())
             {
-                String tempVersion;
-                tempVersion =
-                    allowedDependenciesVersion.length > i && allowedDependenciesVersion[i] != null
-                        ? allowedDependenciesVersion[i] : "";
-                result.add(new ProjectDependency(allowedDependenciesKey[i], tempVersion));
+                result.add(pd);
             }
         }
+
         return result;
+    }
+
+    private void getAllowedLicenses()
+    {
+        allowedLicenses = Lists.newArrayList();
+        
+        String[] licenses = settings.getStringArray(DependencyCheckMetrics.LICENSE_PROPERTY);
+        
+        for (String string : licenses)
+        {
+            License l = new License();
+
+            l.setId(string);
+            
+            l.setTitle(settings.getString(DependencyCheckMetrics.LICENSE_PROPERTY + "." + string + "."
+                + DependencyCheckMetrics.LICENSE_TITLE_PROPERTY));
+            l.setDescription(settings.getString(DependencyCheckMetrics.LICENSE_PROPERTY + "." + string + "."
+                + DependencyCheckMetrics.LICENSE_DESCRIPTION_PROPERTY));
+            l.setUrl(settings.getString(DependencyCheckMetrics.LICENSE_PROPERTY + "." + string + "."
+                + DependencyCheckMetrics.LICENSE_URL_PROPERTY));
+            l.setSourceType(SourceType.valueOf(settings.getString(DependencyCheckMetrics.LICENSE_PROPERTY + "." + string + "."
+                + DependencyCheckMetrics.LICENSE_SOURCETYPE_PROPERTY)));
+            l.setCommercial(settings.getBoolean(DependencyCheckMetrics.LICENSE_PROPERTY + "." + string + "."
+                + DependencyCheckMetrics.LICENSE_COMMERCIAL_PROPERTY));
+            
+            
+            allowedLicenses.add(l);
+        }
     }
 
     private void makeViolation(DecoratorContext context, Dependency d)
     {
         ActiveRule activeRule;
-        
+
         if (!Utilities.dependencyInList(d, allowedProjectDependencies))
         {
             activeRule = rulesProfile.getActiveRule(DependencyCheckMetrics.DEPENDENCY_CHECK_KEY,
                 DependencyCheckMetrics.DEPENDENCY_CHECK_UNLISTED_KEY);
 
-
             sb.append(d.getTo().getKey() + ","
-                + "TODO License" + "," + "Unlisted;");
-            
+                + "no license information" + "," + "Unlisted;");
+
             if (activeRule != null)
             {
                 Violation v = Violation.create(activeRule, project);
@@ -92,8 +128,8 @@ public final class DependencyCheckDecorator implements Decorator
                 DependencyCheckMetrics.DEPENDENCY_CHECK_WRONG_VERSION_KEY);
 
             sb.append(d.getTo().getKey() + ","
-                + "TODO License" + "," + "Wrong Version;");
-            
+                + Utilities.getLicenseName(d, allowedProjectDependencies) + "," + "Wrong Version;");
+
             if (activeRule != null)
             {
                 Violation v = Violation.create(activeRule, project);
@@ -104,7 +140,7 @@ public final class DependencyCheckDecorator implements Decorator
         else
         {
             sb.append(d.getTo().getKey() + ","
-                + "TODO License" + "," + "OK;");
+                + Utilities.getLicenseName(d, allowedProjectDependencies) + "," + "OK;");
         }
 
     }
@@ -112,27 +148,25 @@ public final class DependencyCheckDecorator implements Decorator
     public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context)
     {
         allowedProjectDependencies = getAllowedProjectDependencies();
-        
-        if(ResourceUtils.isRootProject(resource))
+
+        if (ResourceUtils.isRootProject(resource))
         {
             Logger log = LoggerFactory.getLogger(DependencyCheckDecorator.class);
             Set<Dependency> dependencies = context.getDependencies();
 
             log.warn("dependencies: " + dependencies.size());
-            
+
             for (Dependency d : dependencies)
-            {                
+            {
                 if (d.getFrom().getKey() == project.getKey() && !handledToKeys.contains(d.getTo().getKey()))
                 {
                     log.warn("dependency: " + d.getTo().getKey());
-                    
+
                     makeViolation(context, d);
 
                     handledToKeys.add(d.getTo().getKey());
                 }
             }
-
-            //sb.append("com.puppycrawl.tools:checkstyle,TODO License,Unlisted;");
             context.saveMeasure(new Measure(DependencyCheckMetrics.DEPENDENCY, sb.toString()));
         }
     }

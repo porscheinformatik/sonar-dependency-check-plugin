@@ -4,22 +4,23 @@ public class ProjectDependency
 {
     private String key;
     private String versionRange;
-    
+    private String licenseName;
+    private License license;
 
-    public ProjectDependency(String title, String versionRange)
+    public ProjectDependency()
+    {
+        this.key = "";
+        this.versionRange = "";
+        this.licenseName = "";
+        this.license = null;
+    }
+
+    public ProjectDependency(String title, String versionRange, String licenseName)
     {
         this.key = title;
         this.versionRange = versionRange;
-    }
-
-    public String getTitle()
-    {
-        return key;
-    }
-
-    public void setTitle(String title)
-    {
-        this.key = title;
+        this.licenseName = licenseName;
+        // TODO set license name
     }
 
     public String getVersionRange()
@@ -29,8 +30,33 @@ public class ProjectDependency
 
     public void setVersionRange(String versionRange)
     {
-        this.versionRange = versionRange;
+        this.versionRange = versionRange != null ? versionRange :  "";
     }
 
-    
+    public String getKey()
+    {
+        return key;
+    }
+
+    public void setKey(String key)
+    {
+        this.key = key;
+    }
+
+    public String getLicenseName()
+    {
+        return licenseName;
+    }
+
+    public void setLicenseName(String licenseName)
+    {
+        this.licenseName = licenseName;
+        //TODO set License
+    }
+
+    public License getLicense()
+    {
+        return license;
+    }    
+
 }

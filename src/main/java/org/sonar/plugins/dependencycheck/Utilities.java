@@ -24,12 +24,12 @@ public final class Utilities
 
         List<ProjectDependency> availableDependencies = new ArrayList<ProjectDependency>();
 
-        availableDependencies.add(new ProjectDependency("org.codehaus", ""));
-        availableDependencies.add(new ProjectDependency("com.puppycrawl", "5.5"));
+        availableDependencies.add(new ProjectDependency("org.codehaus", "", ""));
+        availableDependencies.add(new ProjectDependency("com.puppycrawl", "5.5", ""));
 
         for (ProjectDependency projectDependency : availableDependencies)
         {
-            if (d.getTo().getKey().toString().contains(projectDependency.getTitle()))
+            if (d.getTo().getKey().toString().contains(projectDependency.getKey()))
             {
                 return true;
             }
@@ -42,7 +42,7 @@ public final class Utilities
     {
         for (ProjectDependency projectDependency : availableDependencies)
         {
-            if (d.getTo().getKey().toString().contains(projectDependency.getTitle()))
+            if (d.getTo().getKey().toString().contains(projectDependency.getKey()))
             {
                 return true;
             }
@@ -55,7 +55,7 @@ public final class Utilities
     {
         for (ProjectDependency projectDependency : availableDependencies)
         {
-            if (d.getTo().getKey().toString().contains(projectDependency.getTitle()))
+            if (d.getTo().getKey().toString().contains(projectDependency.getKey()))
             {
                 Library l = (Library) d.getTo();
 
@@ -164,28 +164,38 @@ public final class Utilities
                     break;
                 }
 
-                if (getVersionDifference(foundLowerBorder[i], subVersions[i]) == 0
-                    && getVersionDifference(foundUpperBorder[i], subVersions[i]) > 0)
-                {
-                    if (foundVersionBiggerThanLowerBorder(foundLowerBorder, subVersions))
-                    {
-                        return true;
-                    }
-                }
-                else if (getVersionDifference(foundUpperBorder[i], subVersions[i]) == 0
-                    && getVersionDifference(foundLowerBorder[i], subVersions[i]) < 0)
-                {
-                    if (foundVersionSmallerThanUpperBorder(foundUpperBorder, subVersions))
-                    {
-                        return true;
-                    }
-                }
-                else if (getVersionDifference(foundUpperBorder[i], foundLowerBorder[i]) >= 2)
+                if (isInRange(foundLowerBorder, foundUpperBorder, subVersions, i))
                 {
                     return true;
                 }
             }
         }
+        return false;
+    }
+
+    private static boolean isInRange(String[] foundLowerBorder, String[] foundUpperBorder, String[] subVersions, int i)
+    {
+        if (getVersionDifference(foundLowerBorder[i], subVersions[i]) == 0
+            && getVersionDifference(foundUpperBorder[i], subVersions[i]) > 0)
+        {
+            if (foundVersionBiggerThanLowerBorder(foundLowerBorder, subVersions))
+            {
+                return true;
+            }
+        }
+        else if (getVersionDifference(foundUpperBorder[i], subVersions[i]) == 0
+            && getVersionDifference(foundLowerBorder[i], subVersions[i]) < 0)
+        {
+            if (foundVersionSmallerThanUpperBorder(foundUpperBorder, subVersions))
+            {
+                return true;
+            }
+        }
+        else if (getVersionDifference(foundUpperBorder[i], foundLowerBorder[i]) >= 2)
+        {
+            return true;
+        }
+
         return false;
     }
 
@@ -225,5 +235,17 @@ public final class Utilities
     private static int getVersionDifference(String versionRange, String versionUsed)
     {
         return Integer.parseInt(versionRange) - Integer.parseInt(versionUsed);
+    }
+
+    public static String getLicenseName(Dependency d, List<ProjectDependency> allowedProjectDependencies)
+    {
+        for (ProjectDependency projectDependency : allowedProjectDependencies)
+        {
+            if (d.getTo().getKey().toString().contains(projectDependency.getKey()))
+            {
+                return projectDependency.getLicenseName();
+            }
+        }
+        return "";
     }
 }
