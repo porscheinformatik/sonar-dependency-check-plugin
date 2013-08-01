@@ -1,19 +1,19 @@
 Dependency Check Sonar Plugin
 ===================
 
-# Project proposal
+[![Build Status](https://travis-ci.org/porscheinformatik/sonar-dependency-check-plugin.png?branch=master)](https://travis-ci.org/porscheinformatik/sonar-dependency-check-plugin)
 
-This Sonar plugin should ensure that projects in an organization adhere to a set of standard libraries and versions. This enables the governance of the used libraries and licences.
+This Sonar plugin ensures that projects in an organization adhere to a set of standard libraries and versions. This enables the governance of the used libraries and licences.
 
 ## Features
 
 ### Analysis
 
-During the project analysis all dependencies should be checked against the defined list of allowed libraries. If a project uses an unlisted dependency, a violation with level "Blocker" should be added. If a project uses a listed dependency out of version range, a violation with level "Critical" should be added.
+During the project analysis all dependencies are checked against the defined list of allowed libraries. If a project uses an unlisted dependency, a violation with level "Blocker" will be added. If a project uses a listed dependency out of version range, a violation with level "Critical" will be added.
 
-### View
+### Widget
 
-There should be a new view with all libraries (in form library:version), the licenses used and the status of this dependency. The view should also be able to only display all used licences.
+The plugin contains a widget with all libraries (in form library:version), the licenses used and the status of this dependency. The view also displays a list of all used licences.
 
 Example:
 <table>
@@ -24,20 +24,18 @@ Example:
   <tr><td>net.sf.jopt-simple:jopt-simple:3.0</td><td>MIT</td><td><b>Unlisted</b></td></tr>
 </table>
 
-Only Licenses:
+Licenses:
 <table>
   <tr><th>License</th><th>Description</th><th>URL</th></tr>
   <tr><td>Apache 2.0</td><td>The Apache Software License, Version 2.0</td><td>http://www.apache.org/licenses/LICENSE-2.0.txt</td></tr>
   <tr><td>MIT</td><td>The MIT License</td><td>http://www.opensource.org/licenses/mit-license.php</td></tr>
 </table>
 
-With a click on the license, details should be shown.
-
 ### Configuration
 
 #### Licenses
 
-A list of licenses should be configurable:
+A list of licenses are configurable via properties file:
 
 <table>
   <tr><th>License</th><th>Description</th><th>URL</th></tr>
@@ -48,7 +46,7 @@ A list of licenses should be configurable:
 
 #### Libraries
 
-There should be the possibility to configure a list of allowed dependencies with a given version range. 
+The list of allowed dependencies with a given version range can be configured. 
 
 Here is an example:
 <table>
@@ -57,12 +55,6 @@ Here is an example:
   <tr><td>commons-logging:commons-logging</td><td>1.1.3</td><td>Apache 2.0</td></tr>
 </table>
 
-The version ranges should be specified in Maven syntax (see http://maven.apache.org/enforcer/enforcer-rules/versionRanges.html).
+The version ranges have to be specified in Maven syntax (see http://maven.apache.org/enforcer/enforcer-rules/versionRanges.html).
 
-This list should be configured in general settings and should be customizable on a per-project basis (if only one project uses a certain library).
-
-## Implementation hints
-
-Create a Sonar plugin as described in: http://docs.codehaus.org/display/SONAR/Extension+Guide
-
-Study the implementation of other plugins: http://docs.codehaus.org/display/SONAR/Sonargraph+Plugin creates violations, http://docs.codehaus.org/display/SONAR/Toxicity+Chart+Plugin adds a view
+This list can be configured in general settings and can be customizable on a per-project basis (if only one project uses a certain library).
