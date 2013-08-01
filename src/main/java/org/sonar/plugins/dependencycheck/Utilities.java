@@ -1,13 +1,22 @@
 package org.sonar.plugins.dependencycheck;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.sonar.api.design.Dependency;
 import org.sonar.api.resources.Library;
+import org.sonar.api.utils.SonarException;
 
+/**
+ * This class has different functions needed in various other classes
+ * 
+ * @author YKM
+ */
 public final class Utilities
 {
     private static final String EVERY_VERSION_ALLOWED = "[^\\Q([])\\E]*";
@@ -18,14 +27,48 @@ public final class Utilities
 
     }
 
+    /**
+     * search for a license by its ID (the one that is written on top of the properties file with the tag:
+     * 'licenses.list')
+     * 
+     * @param licenseName - name of the used license
+     * @param allowedLicenses - list of allowed licenses
+     * @return the found license
+     */
+    public static License getLicenseByName(String licenseName, List<License> allowedLicenses)
+    {
+        for (License license : allowedLicenses)
+        {
+            if (license.getId().contains(licenseName))
+            {
+                return license;
+            }
+        }
+
+        License l = new License();
+        l.setTitle("not License found");
+        l.setCommercial(false);
+        l.setDescription("No License found with the name: " + licenseName);
+        l.setUrl("");
+        l.setSourceType(SourceType.CLOSED);
+
+        return l;
+    }
+
+    /**
+     * This function is just for test reasons static List of dependencies
+     * 
+     * @param d - currently handled dependency
+     * @return whether the dependency is in the list of allowed dependencies or not
+     */
     public static boolean dependencyInList(Dependency d)
     {
         boolean inList = false;
 
         List<ProjectDependency> availableDependencies = new ArrayList<ProjectDependency>();
 
-        availableDependencies.add(new ProjectDependency("org.codehaus", "", ""));
-        availableDependencies.add(new ProjectDependency("com.puppycrawl", "5.5", ""));
+        availableDependencies.add(new ProjectDependency("org.codehaus", "", null));
+        availableDependencies.add(new ProjectDependency("com.puppycrawl", "5.5", null));
 
         for (ProjectDependency projectDependency : availableDependencies)
         {
@@ -38,33 +81,40 @@ public final class Utilities
         return inList;
     }
 
-    public static boolean dependencyInList(Dependency d, List<ProjectDependency> availableDependencies)
+    /**
+     * searches through the list of allowed Dependencies
+     * 
+     * @param d - currently handled dependency
+     * @param allowedProjectDependencies - list of allowed dependencies
+     * @return true if the dependency is in the allowed list
+     */
+    public static boolean dependencyInList(Dependency d, List<ProjectDependency> allowedProjectDependencies)
     {
-        for (ProjectDependency projectDependency : availableDependencies)
-        {
-            if (d.getTo().getKey().toString().contains(projectDependency.getKey()))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        ProjectDependency pd = searchForProjectDependency(d, allowedProjectDependencies);
+        
+        return pd != null ? true : false;
     }
 
-    public static boolean dependencyInVersionRange(Dependency d, List<ProjectDependency> availableDependencies)
+    /**
+     * searches for the currently handled dependency and checks if it is in the allowed version range (true)
+     * 
+     * @param d - currently handled dependency
+     * @param allowedProjectDependencies - list of available dependencies
+     * @return dependency in version range
+     */
+    public static boolean dependencyInVersionRange(Dependency d, List<ProjectDependency> allowedProjectDependencies)
     {
-        for (ProjectDependency projectDependency : availableDependencies)
-        {
-            if (d.getTo().getKey().toString().contains(projectDependency.getKey()))
-            {
-                Library l = (Library) d.getTo();
-
-                return versionAllowed(l.getVersion(), projectDependency.getVersionRange());
-            }
-        }
-        return false;
+        ProjectDependency pd = searchForProjectDependency(d, allowedProjectDependencies);
+        return pd != null ? versionAllowed(((Library) d.getTo()).getVersion(), pd.getVersionRange()) : false;
     }
 
+    /**
+     * checks if the version used is in the allowed range
+     * 
+     * @param versionUsed - used versions
+     * @param versionRange - allowed versions
+     * @return true if version used is in range
+     */
     private static boolean versionAllowed(String versionUsed, String versionRange)
     {
 
@@ -83,7 +133,7 @@ public final class Utilities
         temp = subVersions[0];
         for (int i = 1; i < subVersions.length; i++)
         {
-            temp += SPLIT_BY_DOT + subVersions[i];
+            temp = temp.concat(SPLIT_BY_DOT + subVersions[i]);
         }
 
         regEx += temp + "\\](.*)|(.*)\\[" + temp + "(.*)";
@@ -104,6 +154,13 @@ public final class Utilities
         return false;
     }
 
+    /**
+     * checks whether versionRange is an open range and if so it checks if subVersions is allowed in it
+     * 
+     * @param versionRange - allowed version range
+     * @param subVersions - version used split by dots (into sub versions)
+     * @return true if version is allowed
+     */
     private static boolean checkOpenRange(String versionRange, String[] subVersions)
     {
         String regEx;
@@ -141,6 +198,13 @@ public final class Utilities
 
     }
 
+    /**
+     * checks whether versionRange is a closed range and if so it checks if subVersions is allowed in it
+     * 
+     * @param versionRange - allowed version range
+     * @param subVersions - version used split by dots (into sub versions)
+     * @return true if version is allowed
+     */
     private static boolean checkClosedRange(String versionRange, String[] subVersions)
     {
         String regEx;
@@ -173,6 +237,15 @@ public final class Utilities
         return false;
     }
 
+    /**
+     * checks if the version is allowed between the 2 borders of the closed range
+     * 
+     * @param foundLowerBorder - lower border of the closed range, split by dots
+     * @param foundUpperBorder - upper border of the closed range, split by dots
+     * @param subVersions - version used split by dots
+     * @param i - the currently handled subversion
+     * @return true if version is allowed
+     */
     private static boolean isInRange(String[] foundLowerBorder, String[] foundUpperBorder, String[] subVersions, int i)
     {
         if (getVersionDifference(foundLowerBorder[i], subVersions[i]) == 0
@@ -199,6 +272,13 @@ public final class Utilities
         return false;
     }
 
+    /**
+     * checks if used version is bigger than the lower border
+     * 
+     * @param foundVersion - lower border of version range
+     * @param subVersions - used version
+     * @return true if version is allowed
+     */
     private static boolean foundVersionBiggerThanLowerBorder(String[] foundVersion, String[] subVersions)
     {
         for (int i = 0; i < foundVersion.length; i++)
@@ -215,6 +295,13 @@ public final class Utilities
         return false;
     }
 
+    /**
+     * checks if used version is bigger than the lower border
+     * 
+     * @param foundVersion - upper border of version range
+     * @param subVersions - used version
+     * @return true if version is allowed
+     */
     private static boolean foundVersionSmallerThanUpperBorder(String[] foundVersion, String[] subVersions)
     {
 
@@ -232,20 +319,110 @@ public final class Utilities
         return false;
     }
 
+    /**
+     * calculates the difference between two versions
+     * 
+     * @param versionRange - allowed version range
+     * @param versionUsed - used version range
+     * @return the difference between the version
+     */
     private static int getVersionDifference(String versionRange, String versionUsed)
     {
         return Integer.parseInt(versionRange) - Integer.parseInt(versionUsed);
     }
 
+    /**
+     * searches the name (title) of the license of the dependency
+     * 
+     * @param d - used dependency
+     * @param allowedProjectDependencies - list of allowed dependencies
+     * @return name of the license or a empty String if nothing has been found
+     */
     public static String getLicenseName(Dependency d, List<ProjectDependency> allowedProjectDependencies)
+    {
+        ProjectDependency pd = searchForProjectDependency(d, allowedProjectDependencies);
+        return pd != null ? pd.getLicense().getTitle() : "";
+    }
+
+    /**
+     * searches the license of the used dependency
+     * 
+     * @param d - used dependency
+     * @param allowedProjectDependencies - allowed dependencies
+     * @return the found license or null if nothing has been found
+     */
+    public static License getLicense(Dependency d, List<ProjectDependency> allowedProjectDependencies)
+    {
+        ProjectDependency pd = searchForProjectDependency(d, allowedProjectDependencies);
+
+        return pd != null ? pd.getLicense() : null;
+
+    }
+
+    /**
+     * searches for a dependency in a list of allowed dependencies
+     * 
+     * @param d - currently handled dependency
+     * @param allowedProjectDependencies - list of allowed dependencies
+     * @return version range of the found dependency or an empty string
+     */
+    public static String getDependencyVersionRange(Dependency d, List<ProjectDependency> allowedProjectDependencies)
+    {
+        ProjectDependency pd = searchForProjectDependency(d, allowedProjectDependencies);
+        return pd != null ? pd.getVersionRange() : "";
+    }
+
+    /**
+     * reads the license Properties from the licenses.properties file
+     * 
+     * @param licensesProps - Properties for saving the data about the licenses
+     */
+    public static void readLicenseProperties(Properties licensesProps)
+    {
+
+        InputStream is = null;
+        try
+        {
+            is = DependencyCheckPlugin.class.getClassLoader().getResourceAsStream("licenses.properties");
+            licensesProps.load(is);
+        }
+        catch (IOException e)
+        {
+            throw new SonarException("Error loading licenses.", e);
+        }
+        finally
+        {
+            if (is != null)
+            {
+                try
+                {
+                    is.close();
+                }
+                catch (IOException e)
+                {
+                    // ignore
+                }
+            }
+        }
+    }
+
+    /**
+     * searches for a project dependency in the list of the allowed dependency
+     * @param d - currently handled dependency
+     * @param allowedProjectDependencies - list of allowed dependencies
+     * @return found project dependency
+     */
+    private static ProjectDependency searchForProjectDependency(Dependency d,
+        List<ProjectDependency> allowedProjectDependencies)
     {
         for (ProjectDependency projectDependency : allowedProjectDependencies)
         {
             if (d.getTo().getKey().toString().contains(projectDependency.getKey()))
             {
-                return projectDependency.getLicenseName();
+                return projectDependency;
             }
         }
-        return "";
+
+        return null;
     }
 }

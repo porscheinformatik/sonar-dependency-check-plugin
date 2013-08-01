@@ -1,26 +1,37 @@
 package org.sonar.plugins.dependencycheck;
 
+/**
+ * This class stores a Dependency which is used by the plugin
+ * @author YKM
+ *
+ */
 public class ProjectDependency
 {
     private String key;
     private String versionRange;
-    private String licenseName;
     private License license;
 
+    /**
+     * standard constructor for a ProjectDependency
+     * initializes everything as empty string or null
+     */
     public ProjectDependency()
     {
         this.key = "";
         this.versionRange = "";
-        this.licenseName = "";
         this.license = null;
     }
-
-    public ProjectDependency(String title, String versionRange, String licenseName)
+    /**
+     * constructor for a ProjectDependency
+     * @param title - title of the dependency
+     * @param versionRange - version range of the dependency
+     * @param license - license of the dependency
+     */
+    public ProjectDependency(String title, String versionRange, License license)
     {
         this.key = title;
         this.versionRange = versionRange;
-        this.licenseName = licenseName;
-        // TODO set license name
+        this.license = license;
     }
 
     public String getVersionRange()
@@ -30,7 +41,7 @@ public class ProjectDependency
 
     public void setVersionRange(String versionRange)
     {
-        this.versionRange = versionRange != null ? versionRange :  "";
+        this.versionRange = versionRange != null ? versionRange : "";
     }
 
     public String getKey()
@@ -43,20 +54,14 @@ public class ProjectDependency
         this.key = key;
     }
 
-    public String getLicenseName()
-    {
-        return licenseName;
-    }
-
-    public void setLicenseName(String licenseName)
-    {
-        this.licenseName = licenseName;
-        //TODO set License
-    }
-
     public License getLicense()
     {
         return license;
-    }    
+    }
+
+    public void setLicense(License license)
+    {
+        this.license = license;
+    }
 
 }

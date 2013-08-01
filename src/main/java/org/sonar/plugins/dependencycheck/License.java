@@ -1,5 +1,10 @@
 package org.sonar.plugins.dependencycheck;
 
+/**
+ * This class stores a License which is used in the plugin
+ * @author YKM
+ *
+ */
 public class License
 {
     private String id;
