@@ -1,0 +1,47 @@
+<p class="title">
+	<b>Dependency Check</b>
+</p>
+
+<% depMeasure = @snapshot.measure('dependencycheck.dependency').data
+dependencies = depMeasure.split(';') %> 
+
+<% licMeasure = @snapshot.measure('dependencycheck.license').data 
+licenses = licMeasure.split(';') %>
+
+<table class="width100" id="libraryTable" style="visibility: visible">
+	<tbody>
+		<tr>
+			<th style="text-align: center"><b>Library</b></th>
+			<th style="text-align: center"><b>License</b></th>
+			<th style="text-align: center"><b>Status</b></th>
+		</tr>
+
+		<% dependencies.each do |dependency| 
+			d = dependency.split(',') %>
+		<tr>
+			<td><%= d[0] %></td>
+			<td style="text-align: center"><%= d[1] %></td> <% if d[2] == 'OK' %>
+			<td style="text-align: center"><%= d[2] %></td> <% else %>
+			<td style="text-align: center"><b><%= d[2] %></b></td> <% end %>
+		</tr>
+
+		<% end %>
+
+		<tr style="height: 20px"></tr>
+
+		<tr>
+			<th style="text-align: center"><b>License</b></th>
+			<th style="text-align: center"><b>URL</b></th>
+		</tr>
+		<% licenses.each do |license| 
+			l = license.split(',') %>
+		<tr>
+			<td style="text-align: center"><%= l[0] %></td>
+			<td><a href="<%= l[1] %>"> <%= l[1] %></a></td>
+		</tr>
+
+		<% end %>
+	</tbody>
+</table>
+
+
