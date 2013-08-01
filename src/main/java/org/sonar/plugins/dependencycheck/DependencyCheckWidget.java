@@ -7,9 +7,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.api.web.WidgetCategory;
 
 /**
- * widget to show the measured data
- * 
- * @author YKM
+ * Widget to show the measured data
  */
 @UserRole(UserRole.USER)
 @Description("Widget for the plugin Dependency check."
@@ -17,20 +15,11 @@ import org.sonar.api.web.WidgetCategory;
 @WidgetCategory({"Dependencies"})
 public final class DependencyCheckWidget extends AbstractRubyTemplate implements RubyRailsWidget
 {
-
-    /**
-     * 
-     * {@inheritDoc}
-     */
     public String getId()
     {
         return "dependencycheck_widget";
     }
 
-    /**
-     * 
-     * {@inheritDoc}
-     */
     public String getTitle()
     {
         return "Dependency Check Widget";
@@ -39,7 +28,6 @@ public final class DependencyCheckWidget extends AbstractRubyTemplate implements
     @Override
     protected String getTemplatePath()
     {
-        return "D:/git/sonar-dependency-check-plugin/src/main/"
-            + "resources/org/sonar/plugins/dependencycheck/DependencyCheckWidget.html.erb";
+        return "/org/sonar/plugins/dependencycheck/DependencyCheckWidget.html.erb";
     }
 }

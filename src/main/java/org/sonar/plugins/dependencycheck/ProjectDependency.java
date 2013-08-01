@@ -1,9 +1,7 @@
 package org.sonar.plugins.dependencycheck;
 
 /**
- * This class stores a Dependency which is used by the plugin
- * @author YKM
- *
+ * This class stores a Dependency which is used by the plugin.
  */
 public class ProjectDependency
 {
@@ -12,8 +10,7 @@ public class ProjectDependency
     private License license;
 
     /**
-     * standard constructor for a ProjectDependency
-     * initializes everything as empty string or null
+     * Standard constructor for a {@link ProjectDependency} - initializes everything as empty string or null.
      */
     public ProjectDependency()
     {
@@ -21,8 +18,10 @@ public class ProjectDependency
         this.versionRange = "";
         this.license = null;
     }
+
     /**
-     * constructor for a ProjectDependency
+     * Constructor for a {@link ProjectDependency}
+     * 
      * @param title - title of the dependency
      * @param versionRange - version range of the dependency
      * @param license - license of the dependency

@@ -2,7 +2,6 @@ package org.sonar.plugins.dependencycheck;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -14,8 +13,6 @@ import org.sonar.api.utils.SonarException;
 
 /**
  * This class has different functions needed in various other classes
- * 
- * @author YKM
  */
 public final class Utilities
 {
@@ -24,7 +21,6 @@ public final class Utilities
 
     private Utilities()
     {
-
     }
 
     /**
@@ -35,7 +31,7 @@ public final class Utilities
      * @param allowedLicenses - list of allowed licenses
      * @return the found license
      */
-    public static License getLicenseByName(String licenseName, List<License> allowedLicenses)
+    static License getLicenseByName(String licenseName, List<License> allowedLicenses)
     {
         for (License license : allowedLicenses)
         {
@@ -46,7 +42,7 @@ public final class Utilities
         }
 
         License l = new License();
-        l.setTitle("not License found");
+        l.setTitle("No License found");
         l.setCommercial(false);
         l.setDescription("No License found with the name: " + licenseName);
         l.setUrl("");
@@ -56,42 +52,16 @@ public final class Utilities
     }
 
     /**
-     * This function is just for test reasons static List of dependencies
-     * 
-     * @param d - currently handled dependency
-     * @return whether the dependency is in the list of allowed dependencies or not
-     */
-    public static boolean dependencyInList(Dependency d)
-    {
-        boolean inList = false;
-
-        List<ProjectDependency> availableDependencies = new ArrayList<ProjectDependency>();
-
-        availableDependencies.add(new ProjectDependency("org.codehaus", "", null));
-        availableDependencies.add(new ProjectDependency("com.puppycrawl", "5.5", null));
-
-        for (ProjectDependency projectDependency : availableDependencies)
-        {
-            if (d.getTo().getKey().toString().contains(projectDependency.getKey()))
-            {
-                return true;
-            }
-        }
-
-        return inList;
-    }
-
-    /**
      * searches through the list of allowed Dependencies
      * 
      * @param d - currently handled dependency
      * @param allowedProjectDependencies - list of allowed dependencies
      * @return true if the dependency is in the allowed list
      */
-    public static boolean dependencyInList(Dependency d, List<ProjectDependency> allowedProjectDependencies)
+    static boolean dependencyInList(Dependency d, List<ProjectDependency> allowedProjectDependencies)
     {
         ProjectDependency pd = searchForProjectDependency(d, allowedProjectDependencies);
-        
+
         return pd != null ? true : false;
     }
 
@@ -102,7 +72,7 @@ public final class Utilities
      * @param allowedProjectDependencies - list of available dependencies
      * @return dependency in version range
      */
-    public static boolean dependencyInVersionRange(Dependency d, List<ProjectDependency> allowedProjectDependencies)
+    static boolean dependencyInVersionRange(Dependency d, List<ProjectDependency> allowedProjectDependencies)
     {
         ProjectDependency pd = searchForProjectDependency(d, allowedProjectDependencies);
         return pd != null ? versionAllowed(((Library) d.getTo()).getVersion(), pd.getVersionRange()) : false;
@@ -338,7 +308,7 @@ public final class Utilities
      * @param allowedProjectDependencies - list of allowed dependencies
      * @return name of the license or a empty String if nothing has been found
      */
-    public static String getLicenseName(Dependency d, List<ProjectDependency> allowedProjectDependencies)
+    static String getLicenseName(Dependency d, List<ProjectDependency> allowedProjectDependencies)
     {
         ProjectDependency pd = searchForProjectDependency(d, allowedProjectDependencies);
         return pd != null ? pd.getLicense().getTitle() : "";
@@ -351,7 +321,7 @@ public final class Utilities
      * @param allowedProjectDependencies - allowed dependencies
      * @return the found license or null if nothing has been found
      */
-    public static License getLicense(Dependency d, List<ProjectDependency> allowedProjectDependencies)
+    static License getLicense(Dependency d, List<ProjectDependency> allowedProjectDependencies)
     {
         ProjectDependency pd = searchForProjectDependency(d, allowedProjectDependencies);
 
@@ -366,7 +336,7 @@ public final class Utilities
      * @param allowedProjectDependencies - list of allowed dependencies
      * @return version range of the found dependency or an empty string
      */
-    public static String getDependencyVersionRange(Dependency d, List<ProjectDependency> allowedProjectDependencies)
+    static String getDependencyVersionRange(Dependency d, List<ProjectDependency> allowedProjectDependencies)
     {
         ProjectDependency pd = searchForProjectDependency(d, allowedProjectDependencies);
         return pd != null ? pd.getVersionRange() : "";
@@ -377,7 +347,7 @@ public final class Utilities
      * 
      * @param licensesProps - Properties for saving the data about the licenses
      */
-    public static void readLicenseProperties(Properties licensesProps)
+    static void readLicenseProperties(Properties licensesProps)
     {
 
         InputStream is = null;
@@ -408,6 +378,7 @@ public final class Utilities
 
     /**
      * searches for a project dependency in the list of the allowed dependency
+     * 
      * @param d - currently handled dependency
      * @param allowedProjectDependencies - list of allowed dependencies
      * @return found project dependency

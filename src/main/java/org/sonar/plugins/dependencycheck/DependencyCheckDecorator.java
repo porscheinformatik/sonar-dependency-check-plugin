@@ -25,8 +25,6 @@ import com.google.common.collect.Lists;
 
 /**
  * This class creates Issues and Measures for the analyzed project.
- * 
- * @author YKM
  */
 public final class DependencyCheckDecorator implements Decorator
 {
@@ -120,9 +118,9 @@ public final class DependencyCheckDecorator implements Decorator
         List<License> allowedLicenses = Lists.newArrayList();
 
         Properties licensesProps = new Properties();
-        
+
         Utilities.readLicenseProperties(licensesProps);
-        
+
         String[] allowed = licensesProps.getProperty("license.list").split("\\|");
 
         for (String s : allowed)

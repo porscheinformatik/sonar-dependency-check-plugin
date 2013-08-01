@@ -9,8 +9,6 @@ import org.sonar.api.measures.Metrics;
 
 /**
  * Constants and Metrics for the plugin
- * @author YKM
- *
  */
 public final class DependencyCheckMetrics implements Metrics
 {
@@ -21,7 +19,7 @@ public final class DependencyCheckMetrics implements Metrics
     public static final String DEPENDENCY_CHECK_WRONG_VERSION_KEY = "dependencycheck.wrongversion";
 
     public static final String LIBRARY_GLOBAL_PROPERTY = "sonar.dependencycheck.lib.global";
-    public static final String LIBRARY_PROJECT_PROPERTY = "sonar.dependencycheck.lib.project";    
+    public static final String LIBRARY_PROJECT_PROPERTY = "sonar.dependencycheck.lib.project";
     public static final String LIBRARY_KEY_PROPERTY = "sonar.dependencycheck.lib.key";
     public static final String LIBRARY_VERSION_PROPERTY = "sonar.dependencycheck.lib.version";
     public static final String LIBRARY_LICENSE_PROPERTY = "sonar.dependencycheck.lib.license";
@@ -41,7 +39,9 @@ public final class DependencyCheckMetrics implements Metrics
         .setQualitative(true)
         .setDomain(CoreMetrics.DOMAIN_GENERAL)
         .create();
-    public static final Metric LICENSE = new Metric.Builder(DEPENDENCY_CHECK_LICENSE_KEY, "Dependency Check - Licenses",
+
+    public static final Metric LICENSE = new Metric.Builder(DEPENDENCY_CHECK_LICENSE_KEY,
+        "Dependency Check - Licenses",
         Metric.ValueType.DATA)
         .setDescription("Used Libraries")
         .setDirection(Metric.DIRECTION_WORST)
@@ -50,7 +50,6 @@ public final class DependencyCheckMetrics implements Metrics
         .create();
 
     /**
-     * 
      * {@inheritDoc}
      */
     public List<Metric> getMetrics()

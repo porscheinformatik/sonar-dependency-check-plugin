@@ -9,8 +9,6 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 /**
  * Repository for the rules used in the plugin
- * @author YKM
- *
  */
 @SuppressWarnings("deprecation")
 public final class DependencyCheckRuleRepository extends RuleRepository

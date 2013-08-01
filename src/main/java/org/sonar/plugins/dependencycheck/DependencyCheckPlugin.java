@@ -18,8 +18,7 @@ import com.google.common.collect.ImmutableList;
 public final class DependencyCheckPlugin extends SonarPlugin
 {
     /**
-     * Returns the Properties and Class files needed by Sonar
-     * {@inheritDoc}
+     * Returns the Properties and Class files needed by Sonar {@inheritDoc}
      */
     public List<?> getExtensions()
     {
@@ -29,7 +28,7 @@ public final class DependencyCheckPlugin extends SonarPlugin
         ImmutableList.Builder<Object> extensions = ImmutableList.builder();
 
         Properties licensesProps = new Properties();
-        
+
         Utilities.readLicenseProperties(licensesProps);
 
         String[] allowed = licensesProps.getProperty("license.list").split("\\|");
@@ -78,7 +77,7 @@ public final class DependencyCheckPlugin extends SonarPlugin
             .onQualifiers(Qualifiers.PROJECT)
             .build()
             );
-        
+
         extensions.add(DependencyCheckRuleRepository.class);
         extensions.add(DependencyCheckMetrics.class);
         extensions.add(DependencyCheckDecorator.class);
