@@ -1,15 +1,14 @@
 package org.sonar.plugins.dependencycheck;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
-import java.util.Properties;
+import java.util.SortedSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.sonar.api.design.Dependency;
 import org.sonar.api.resources.Library;
-import org.sonar.api.utils.SonarException;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ResourceUtils;
 
 /**
  * This class has different functions needed in various other classes
@@ -31,13 +30,16 @@ public final class Utilities
      * @param allowedLicenses - list of allowed licenses
      * @return the found license
      */
-    static License getLicenseByName(String licenseName, List<License> allowedLicenses)
+    static License getLicenseByNameOrId(String licenseName, List<License> allowedLicenses)
     {
-        for (License license : allowedLicenses)
+        if (licenseName != null)
         {
-            if (license.getId().contains(licenseName))
+            for (License license : allowedLicenses)
             {
-                return license;
+                if (license.getTitle().contains(licenseName) || license.getId().equals(licenseName))
+                {
+                    return license;
+                }
             }
         }
 
@@ -343,40 +345,6 @@ public final class Utilities
     }
 
     /**
-     * reads the license Properties from the licenses.properties file
-     * 
-     * @param licensesProps - Properties for saving the data about the licenses
-     */
-    static void readLicenseProperties(Properties licensesProps)
-    {
-
-        InputStream is = null;
-        try
-        {
-            is = DependencyCheckPlugin.class.getClassLoader().getResourceAsStream("licenses.properties");
-            licensesProps.load(is);
-        }
-        catch (IOException e)
-        {
-            throw new SonarException("Error loading licenses.", e);
-        }
-        finally
-        {
-            if (is != null)
-            {
-                try
-                {
-                    is.close();
-                }
-                catch (IOException e)
-                {
-                    // ignore
-                }
-            }
-        }
-    }
-
-    /**
      * searches for a project dependency in the list of the allowed dependency
      * 
      * @param d - currently handled dependency
@@ -396,4 +364,38 @@ public final class Utilities
 
         return null;
     }
+
+    /**
+     * Concatenates a SortedSet of Strings with a semi-colon between them
+     * 
+     * @param sortedDependencies - SortedSet of Strings
+     * @return concatenated string
+     */
+    public static String concatStringList(SortedSet<String> sortedDependencies)
+    {
+        String concatenatedString = "";
+        for (String s : sortedDependencies)
+        {
+            concatenatedString = concatenatedString.concat(s + ";");
+        }
+        return concatenatedString;
+    }
+
+    /**
+     * checks if the dependency has the same root as the project
+     * 
+     * @param d - dependency
+     * @return true if it has the same root, false if not
+     */
+    public static boolean hasSameRoot(Dependency d)
+    {
+        Project p = null;
+        if (ResourceUtils.isProject(d.getTo()) && !ResourceUtils.isLibrary(d.getTo()))
+        {
+            p = (Project) d.getTo();
+            return p.getRoot().equals(((Project) d.getFrom()).getRoot());
+        }
+        return false;
+    }
+
 }
