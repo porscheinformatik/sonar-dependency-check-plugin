@@ -1,9 +1,11 @@
 package org.sonar.plugins.dependencycheck;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +43,7 @@ public final class DependencyCheckDecorator implements Decorator
     {
         this.settings = settings;
         this.perspectives = perspectives;
+
     }
 
     /**
@@ -48,12 +51,12 @@ public final class DependencyCheckDecorator implements Decorator
      */
     public boolean shouldExecuteOnProject(Project project)
     {
-        return "java".equals(project.getLanguage().getKey());
+        return true;
     }
 
     /**
      * Creates a List of allowed Dependencies for the Project - configurable in the Project settings in the category
-     * java
+     * dependency check
      * 
      * @return List of allowed dependencies
      */
@@ -74,7 +77,7 @@ public final class DependencyCheckDecorator implements Decorator
                 + DependencyCheckMetrics.LIBRARY_KEY_PROPERTY));
             pd.setVersionRange(settings.getString(DependencyCheckMetrics.LIBRARY_PROJECT_PROPERTY + "." + string
                 + "." + DependencyCheckMetrics.LIBRARY_VERSION_PROPERTY));
-            pd.setLicense(Utilities.getLicenseByName(
+            pd.setLicense(Utilities.getLicenseByNameOrId(
                 settings.getString(DependencyCheckMetrics.LIBRARY_PROJECT_PROPERTY + "." + string
                     + "." + DependencyCheckMetrics.LIBRARY_LICENSE_PROPERTY), allowedLicenses));
 
@@ -95,7 +98,7 @@ public final class DependencyCheckDecorator implements Decorator
                 + DependencyCheckMetrics.LIBRARY_KEY_PROPERTY));
             pd.setVersionRange(settings.getString(DependencyCheckMetrics.LIBRARY_GLOBAL_PROPERTY + "." + string
                 + "." + DependencyCheckMetrics.LIBRARY_VERSION_PROPERTY));
-            pd.setLicense(Utilities.getLicenseByName(
+            pd.setLicense(Utilities.getLicenseByNameOrId(
                 settings.getString(DependencyCheckMetrics.LIBRARY_GLOBAL_PROPERTY + "." + string
                     + "." + DependencyCheckMetrics.LIBRARY_LICENSE_PROPERTY), allowedLicenses));
 
@@ -117,24 +120,31 @@ public final class DependencyCheckDecorator implements Decorator
     {
         List<License> allowedLicenses = Lists.newArrayList();
 
-        Properties licensesProps = new Properties();
-
-        Utilities.readLicenseProperties(licensesProps);
-
-        String[] allowed = licensesProps.getProperty("license.list").split("\\|");
+        String[] allowed = settings.getStringArray(DependencyCheckMetrics.LICENSE_PROPERTY);
 
         for (String s : allowed)
         {
             License l = new License();
 
-            l.setId(s);
-            String temp = "license.".concat(s);
-            l.setTitle(licensesProps.getProperty(temp + ".name"));
-            l.setUrl(licensesProps.getProperty(temp + ".url"));
-            l.setDescription(licensesProps.getProperty(temp + ".description"));
-            l.setCommercial(licensesProps.getProperty(temp + ".commercial").contains("true") ? true : false);
-            l.setSourceType(SourceType.valueOf(licensesProps.getProperty(temp + ".sourcetype").isEmpty()
-                ? SourceType.CLOSED.name() : licensesProps.getProperty(temp + ".sourcetype")));
+            String temp = DependencyCheckMetrics.LICENSE_PROPERTY.concat("." + s + ".");
+
+            l.setId(settings.getString(temp + DependencyCheckMetrics.LICENSE_ID_PROPERTY));
+            l.setTitle(settings.getString(temp + DependencyCheckMetrics.LICENSE_TITLE_PROPERTY));
+            l.setUrl(settings.getString(temp + DependencyCheckMetrics.LICENSE_URL_PROPERTY));
+            l.setDescription(settings.getString(temp + DependencyCheckMetrics.LICENSE_DESCRIPTION_PROPERTY));
+            l.setCommercial(settings.getString(temp + DependencyCheckMetrics.LICENSE_COMMERCIAL_PROPERTY).contains(
+                "true"));
+
+            String st = settings.getString(temp + DependencyCheckMetrics.LICENSE_SOURCETYPE_PROPERTY);
+            if (st != null && !st.isEmpty())
+            {
+                l.setSourceType(SourceType.valueOf(settings.getString(
+                    temp + DependencyCheckMetrics.LICENSE_SOURCETYPE_PROPERTY)));
+            }
+            else
+            {
+                l.setSourceType(SourceType.OPENSOURCE_COPYLEFT);
+            }
             allowedLicenses.add(l);
         }
 
@@ -219,7 +229,7 @@ public final class DependencyCheckDecorator implements Decorator
      */
     public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context)
     {
-        if (ResourceUtils.isRootProject(resource))
+        if (ResourceUtils.isProject(resource))
         {
             StringBuilder sbDependencies = new StringBuilder("");
             StringBuilder sbLicenses = new StringBuilder("");
@@ -237,7 +247,10 @@ public final class DependencyCheckDecorator implements Decorator
 
             for (Dependency d : dependencies)
             {
-                if (d.getFrom().getKey().equals(project.getKey()) && !handledToKeys.contains(d.getTo().getKey()))
+
+                if (d.getFrom().getKey().equals(project.getKey())
+                    && !handledToKeys.contains(d.getTo().getKey())
+                    && !Utilities.hasSameRoot(d))
                 {
                     log.warn("dependency: " + d.getTo().getKey());
 
@@ -246,8 +259,51 @@ public final class DependencyCheckDecorator implements Decorator
                     handledToKeys.add(d.getTo().getKey());
                 }
             }
-            context.saveMeasure(new Measure(DependencyCheckMetrics.DEPENDENCY, sbDependencies.toString()));
-            context.saveMeasure(new Measure(DependencyCheckMetrics.LICENSE, sbLicenses.toString()));
+            Measure[] dependencyMeasures =
+                (Measure[]) context.getChildrenMeasures(DependencyCheckMetrics.DEPENDENCY).toArray(
+                    new Measure[context.getChildrenMeasures(DependencyCheckMetrics.DEPENDENCY).size()]);
+
+            for (Measure measure : dependencyMeasures)
+            {
+                if (!sbDependencies.toString().contains(measure.getData()))
+                {
+                    sbDependencies.append(measure.getData());
+                }
+            }
+
+            Measure[] licenseMeasures =
+                context.getChildrenMeasures(DependencyCheckMetrics.LICENSE).toArray(
+                    new Measure[context.getChildrenMeasures(DependencyCheckMetrics.LICENSE).size()]);
+
+            for (Measure measure : licenseMeasures)
+            {
+                if (!sbLicenses.toString().contains(measure.getData()))
+                {
+                    sbLicenses.append(measure.getData());
+                }
+            }
+
+            String[] splitDependencies = sbDependencies.toString().split(";");
+            String[] splitLicenses = sbLicenses.toString().split(";");
+
+            SortedSet<String> sortedDependencies = new TreeSet<String>();
+            sortedDependencies.addAll(Arrays.asList(splitDependencies));
+
+            SortedSet<String> sortedLicenses = new TreeSet<String>();
+            sortedLicenses.addAll(Arrays.asList(splitLicenses));
+
+            for (String s : sortedLicenses)
+            {
+                if (s.contains("No License found"))
+                {
+                    sortedLicenses.remove(s);
+                }
+            }
+
+            context.saveMeasure(new Measure(DependencyCheckMetrics.DEPENDENCY, Utilities
+                .concatStringList(sortedDependencies)));
+            context
+                .saveMeasure(new Measure(DependencyCheckMetrics.LICENSE, Utilities.concatStringList(sortedLicenses)));
         }
     }
 }

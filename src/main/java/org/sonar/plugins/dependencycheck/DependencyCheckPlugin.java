@@ -2,7 +2,6 @@ package org.sonar.plugins.dependencycheck;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
@@ -25,24 +24,20 @@ public final class DependencyCheckPlugin extends SonarPlugin
         String category = "Dependency Check";
         String subGlobal = "Global Dependencies";
         String subProject = "Project Dependencies";
+        String subLicense = "Licenses";
         ImmutableList.Builder<Object> extensions = ImmutableList.builder();
 
-        Properties licensesProps = new Properties();
-
-        Utilities.readLicenseProperties(licensesProps);
-
-        String[] allowed = licensesProps.getProperty("license.list").split("\\|");
-
         List<PropertyFieldDefinition> libraryField = new ArrayList<PropertyFieldDefinition>();
-
+        List<PropertyFieldDefinition> licenseField = new ArrayList<PropertyFieldDefinition>();
+        
         // Library
         libraryField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LIBRARY_KEY_PROPERTY)
-            .name("Dependency name")
+            .name("Name")
             .description("Name of the allowed libraries in the form \"groupID:artifactID\"")
             .build()
             );
         libraryField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LIBRARY_VERSION_PROPERTY)
-            .name("Dependency version")
+            .name("Version Range")
             .description(
                 "Version of the allowed libraries in the Maven Syntax - see: "
                     + "http://maven.apache.org/enforcer/enforcer-rules/versionRanges.html "
@@ -50,13 +45,47 @@ public final class DependencyCheckPlugin extends SonarPlugin
             .build()
             );
         libraryField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LIBRARY_LICENSE_PROPERTY)
-            .name("Dependency License")
-            .description("Select the License of the Dependency.")
-            .type(PropertyType.SINGLE_SELECT_LIST)
-            .options(allowed)
+            .name("License")
+            .description("Enter the Name (either full name or shortage) of the License of the Dependency.")
             .build()
             );
 
+        // Licenses
+        licenseField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LICENSE_ID_PROPERTY)
+            .name("ID")
+            .description("Shortage of the License title (i.e. GPL, LGPL)")
+            .build()
+            );
+        licenseField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LICENSE_TITLE_PROPERTY)
+            .name("Title")
+            .description("Title of the allowed license")
+            .build()
+            );
+        licenseField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LICENSE_DESCRIPTION_PROPERTY)
+            .name("Description")
+            .description("Description of the license")
+            .type(PropertyType.TEXT)
+            .build()
+            );
+        licenseField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LICENSE_URL_PROPERTY)
+            .name("URL")
+            .description("URL for further description of the License")
+            .build()
+            );
+        licenseField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LICENSE_COMMERCIAL_PROPERTY)
+            .name("Commercial")
+            .description("Enter whether the License is commercial")
+            .type(PropertyType.BOOLEAN)
+            .build()
+            );
+        licenseField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LICENSE_SOURCETYPE_PROPERTY)
+            .name("Source Type")
+            .description("The type of allowed source code")
+            .type(PropertyType.SINGLE_SELECT_LIST)
+            .options(SourceType.getSourceTypes())
+            .build()
+            );
+        
         extensions.add(PropertyDefinition.builder(DependencyCheckMetrics.LIBRARY_GLOBAL_PROPERTY)
             .category(category)
             .subCategory(subGlobal)
@@ -78,6 +107,16 @@ public final class DependencyCheckPlugin extends SonarPlugin
             .build()
             );
 
+        extensions.add(PropertyDefinition.builder(DependencyCheckMetrics.LICENSE_PROPERTY)
+            .category(category)
+            .subCategory(subLicense)
+            .name("License")
+            .description("Insert information about the allowed Licenses")
+            .type(PropertyType.PROPERTY_SET)
+            .fields(licenseField)
+            .build()
+            );
+        
         extensions.add(DependencyCheckRuleRepository.class);
         extensions.add(DependencyCheckMetrics.class);
         extensions.add(DependencyCheckDecorator.class);
