@@ -36,7 +36,7 @@ public class License {
   }
 
   public String getUrl() {
-    return url;
+    return url == null ? "" : url;
   }
 
   public void setUrl(String url) {

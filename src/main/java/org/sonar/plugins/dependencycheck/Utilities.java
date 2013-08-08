@@ -16,6 +16,13 @@ import org.sonar.api.resources.ResourceUtils;
 public final class Utilities {
   private static final String EVERY_VERSION_ALLOWED = "[^\\Q([])\\E]*";
   private static final String SPLIT_BY_DOT = "\\.";
+  private static final License NO_LICENSE = new License();
+  static {
+    NO_LICENSE.setTitle("No License found");
+    NO_LICENSE.setCommercial(false);
+    NO_LICENSE.setUrl("");
+    NO_LICENSE.setSourceType(SourceType.CLOSED);
+  }
 
   private Utilities() {
   }
@@ -37,14 +44,7 @@ public final class Utilities {
       }
     }
 
-    License l = new License();
-    l.setTitle("No License found");
-    l.setCommercial(false);
-    l.setDescription("No License found with the name: " + licenseName);
-    l.setUrl("");
-    l.setSourceType(SourceType.CLOSED);
-
-    return l;
+    return NO_LICENSE;
   }
 
   /**
