@@ -1,75 +1,61 @@
 package org.sonar.plugins.dependencycheck;
 
 /**
- * This class stores a License which is used in the plugin
+ * This class stores a License which is used in the plugin.
  */
-public class License
-{
-    private String id;
-    private String title;
-    private String description;
-    private String url;
-    private SourceType sourceType;
-    private boolean commercial;
-    
-    
-    public String getId()
-    {
-        return id;
-    }
+public class License {
+  private String id;
+  private String title;
+  private String description;
+  private String url;
+  private SourceType sourceType;
+  private boolean commercial;
 
-    public void setId(String id)
-    {
-        this.id = id;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public String getTitle()
-    {
-        return title;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public void setTitle(String title)
-    {
-        this.title = title;
-    }
+  public String getTitle() {
+    return title;
+  }
 
-    public String getDescription()
-    {
-        return description;
-    }
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-    public void setDescription(String description)
-    {
-        this.description = description;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public String getUrl()
-    {
-        return url;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public void setUrl(String url)
-    {
-        this.url = url;
-    }
+  public String getUrl() {
+    return url;
+  }
 
-    public SourceType getSourceType()
-    {
-        return sourceType;
-    }
+  public void setUrl(String url) {
+    this.url = url;
+  }
 
-    public void setSourceType(SourceType sourceType)
-    {
-        this.sourceType = sourceType;
-    }
+  public SourceType getSourceType() {
+    return sourceType;
+  }
 
-    public boolean isCommercial()
-    {
-        return commercial;
-    }
+  public void setSourceType(SourceType sourceType) {
+    this.sourceType = sourceType;
+  }
 
-    public void setCommercial(boolean commercial)
-    {
-        this.commercial = commercial;
-    }
+  public boolean isCommercial() {
+    return commercial;
+  }
+
+  public void setCommercial(boolean commercial) {
+    this.commercial = commercial;
+  }
 }

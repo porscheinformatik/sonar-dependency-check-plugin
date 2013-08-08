@@ -10,24 +10,19 @@ import org.sonar.api.web.WidgetCategory;
  * Widget to show the measured data
  */
 @UserRole(UserRole.USER)
-@Description("Widget for the plugin Dependency check."
-    + "Shows the used Dependencies and their status (ok, wrong version, unlisted)")
+@Description("Widget for the plugin Dependency check. Shows the used Dependencies and their status (ok, wrong version, unlisted)")
 @WidgetCategory({"Dependencies"})
-public final class DependencyCheckWidget extends AbstractRubyTemplate implements RubyRailsWidget
-{
-    public String getId()
-    {
-        return "dependencycheck_widget";
-    }
+public final class DependencyCheckWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+  public String getId() {
+    return "dependencycheck_widget";
+  }
 
-    public String getTitle()
-    {
-        return "Dependency Check Widget";
-    }
+  public String getTitle() {
+    return "Dependency Check Widget";
+  }
 
-    @Override
-    protected String getTemplatePath()
-    {
-        return "/org/sonar/plugins/dependencycheck/DependencyCheckWidget.html.erb";
-    }
+  @Override
+  protected String getTemplatePath() {
+    return "/org/sonar/plugins/dependencycheck/DependencyCheckWidget.html.erb";
+  }
 }

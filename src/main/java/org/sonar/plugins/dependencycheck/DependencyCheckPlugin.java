@@ -14,114 +14,112 @@ import com.google.common.collect.ImmutableList;
 /**
  * This class is the entry point for all extensions
  */
-public final class DependencyCheckPlugin extends SonarPlugin
-{
-    /**
-     * Returns the Properties and Class files needed by Sonar {@inheritDoc}
-     */
-    public List<?> getExtensions()
-    {
-        String category = "Dependency Check";
-        String subGlobal = "Global Dependencies";
-        String subProject = "Project Dependencies";
-        String subLicense = "Licenses";
-        ImmutableList.Builder<Object> extensions = ImmutableList.builder();
+public final class DependencyCheckPlugin extends SonarPlugin {
+  /**
+   * Returns the Properties and Class files needed by Sonar {@inheritDoc}
+   */
+  public List<?> getExtensions() {
+    String category = "Dependency Check";
+    String subGlobal = "Global Dependencies";
+    String subProject = "Project Dependencies";
+    String subLicense = "Licenses";
+    ImmutableList.Builder<Object> extensions = ImmutableList.builder();
 
-        List<PropertyFieldDefinition> libraryField = new ArrayList<PropertyFieldDefinition>();
-        List<PropertyFieldDefinition> licenseField = new ArrayList<PropertyFieldDefinition>();
-        
-        // Library
-        libraryField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LIBRARY_KEY_PROPERTY)
-            .name("Name")
-            .description("Name of the allowed libraries in the form \"groupID:artifactID\"")
-            .build()
-            );
-        libraryField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LIBRARY_VERSION_PROPERTY)
-            .name("Version Range")
-            .description(
-                "Version of the allowed libraries in the Maven Syntax - see: "
-                    + "http://maven.apache.org/enforcer/enforcer-rules/versionRanges.html "
-                    + "for further information! " + "Leaving this empty will allow every version.")
-            .build()
-            );
-        libraryField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LIBRARY_LICENSE_PROPERTY)
-            .name("License")
-            .description("Enter the Name (either full name or shortage) of the License of the Dependency.")
-            .build()
-            );
+    List<PropertyFieldDefinition> libraryField = new ArrayList<PropertyFieldDefinition>();
+    List<PropertyFieldDefinition> licenseField = new ArrayList<PropertyFieldDefinition>();
 
-        // Licenses
-        licenseField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LICENSE_ID_PROPERTY)
-            .name("ID")
-            .description("Shortage of the License title (i.e. GPL, LGPL)")
-            .build()
-            );
-        licenseField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LICENSE_TITLE_PROPERTY)
-            .name("Title")
-            .description("Title of the allowed license")
-            .build()
-            );
-        licenseField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LICENSE_DESCRIPTION_PROPERTY)
-            .name("Description")
-            .description("Description of the license")
-            .type(PropertyType.TEXT)
-            .build()
-            );
-        licenseField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LICENSE_URL_PROPERTY)
-            .name("URL")
-            .description("URL for further description of the License")
-            .build()
-            );
-        licenseField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LICENSE_COMMERCIAL_PROPERTY)
-            .name("Commercial")
-            .description("Enter whether the License is commercial")
-            .type(PropertyType.BOOLEAN)
-            .build()
-            );
-        licenseField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LICENSE_SOURCETYPE_PROPERTY)
-            .name("Source Type")
-            .description("The type of allowed source code")
-            .type(PropertyType.SINGLE_SELECT_LIST)
-            .options(SourceType.getSourceTypes())
-            .build()
-            );
-        
-        extensions.add(PropertyDefinition.builder(DependencyCheckMetrics.LIBRARY_GLOBAL_PROPERTY)
-            .category(category)
-            .subCategory(subGlobal)
-            .name("Library")
-            .description("Insert information about the allowed Libraries")
-            .type(PropertyType.PROPERTY_SET)
-            .fields(libraryField)
-            .build()
-            );
+    // Library
+    libraryField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LIBRARY_KEY_PROPERTY)
+        .name("Name")
+        .description("Name of the allowed libraries in the form \"groupID:artifactID\"")
+        .build()
+        );
+    libraryField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LIBRARY_VERSION_PROPERTY)
+        .name("Version Range")
+        .description(
+            "Version of the allowed libraries in the Maven Syntax - see: "
+              + "http://maven.apache.org/enforcer/enforcer-rules/versionRanges.html "
+              + "for further information! " + "Leaving this empty will allow every version.")
+        .build()
+        );
+    libraryField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LIBRARY_LICENSE_PROPERTY)
+        .name("License")
+        .description("Enter the Name (either full name or shortage) of the License of the Dependency.")
+        .build()
+        );
 
-        extensions.add(PropertyDefinition.builder(DependencyCheckMetrics.LIBRARY_PROJECT_PROPERTY)
-            .category(category)
-            .subCategory(subProject)
-            .name("Library")
-            .description("Insert information about the allowed Libraries")
-            .type(PropertyType.PROPERTY_SET)
-            .fields(libraryField)
-            .onQualifiers(Qualifiers.PROJECT)
-            .build()
-            );
+    // Licenses
+    licenseField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LICENSE_ID_PROPERTY)
+        .name("ID")
+        .description("Shortage of the License title (i.e. GPL, LGPL)")
+        .build()
+        );
+    licenseField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LICENSE_TITLE_PROPERTY)
+        .name("Title")
+        .description("Title of the allowed license")
+        .build()
+        );
+    licenseField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LICENSE_DESCRIPTION_PROPERTY)
+        .name("Description")
+        .description("Description of the license")
+        .type(PropertyType.TEXT)
+        .build()
+        );
+    licenseField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LICENSE_URL_PROPERTY)
+        .name("URL")
+        .description("URL for further description of the License")
+        .build()
+        );
+    licenseField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LICENSE_COMMERCIAL_PROPERTY)
+        .name("Commercial")
+        .description("Enter whether the License is commercial")
+        .type(PropertyType.BOOLEAN)
+        .build()
+        );
+    licenseField.add(PropertyFieldDefinition.build(DependencyCheckMetrics.LICENSE_SOURCETYPE_PROPERTY)
+        .name("Source Type")
+        .description("The type of allowed source code")
+        .type(PropertyType.SINGLE_SELECT_LIST)
+        .options(SourceType.getSourceTypes())
+        .build()
+        );
 
-        extensions.add(PropertyDefinition.builder(DependencyCheckMetrics.LICENSE_PROPERTY)
-            .category(category)
-            .subCategory(subLicense)
-            .name("License")
-            .description("Insert information about the allowed Licenses")
-            .type(PropertyType.PROPERTY_SET)
-            .fields(licenseField)
-            .build()
-            );
-        
-        extensions.add(DependencyCheckRuleRepository.class);
-        extensions.add(DependencyCheckMetrics.class);
-        extensions.add(DependencyCheckDecorator.class);
-        extensions.add(DependencyCheckWidget.class);
+    extensions.add(PropertyDefinition.builder(DependencyCheckMetrics.LIBRARY_GLOBAL_PROPERTY)
+        .category(category)
+        .subCategory(subGlobal)
+        .name("Library")
+        .description("Insert information about the allowed Libraries")
+        .type(PropertyType.PROPERTY_SET)
+        .fields(libraryField)
+        .build()
+        );
 
-        return extensions.build();
-    }
+    extensions.add(PropertyDefinition.builder(DependencyCheckMetrics.LIBRARY_PROJECT_PROPERTY)
+        .category(category)
+        .subCategory(subProject)
+        .name("Library")
+        .description("Insert information about the allowed Libraries")
+        .type(PropertyType.PROPERTY_SET)
+        .fields(libraryField)
+        .onQualifiers(Qualifiers.PROJECT)
+        .build()
+        );
+
+    extensions.add(PropertyDefinition.builder(DependencyCheckMetrics.LICENSE_PROPERTY)
+        .category(category)
+        .subCategory(subLicense)
+        .name("License")
+        .description("Insert information about the allowed Licenses")
+        .type(PropertyType.PROPERTY_SET)
+        .fields(licenseField)
+        .build()
+        );
+
+    extensions.add(DependencyCheckRuleRepository.class);
+    extensions.add(DependencyCheckMetrics.class);
+    extensions.add(DependencyCheckDecorator.class);
+    extensions.add(DependencyCheckWidget.class);
+
+    return extensions.build();
+  }
 }
