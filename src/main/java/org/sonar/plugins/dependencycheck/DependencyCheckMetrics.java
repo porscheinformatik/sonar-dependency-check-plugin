@@ -25,6 +25,7 @@ public final class DependencyCheckMetrics implements Metrics
     public static final String LIBRARY_LICENSE_PROPERTY = "sonar.dependencycheck.lib.license";
 
     public static final String LICENSE_PROPERTY = "sonar.dependencycheck.license";
+    public static final String LICENSE_ID_PROPERTY = "sonar.dependencycheck.license.id";
     public static final String LICENSE_TITLE_PROPERTY = "sonar.dependencycheck.license.title";
     public static final String LICENSE_DESCRIPTION_PROPERTY = "sonar.dependencycheck.license.description";
     public static final String LICENSE_URL_PROPERTY = "sonar.dependencycheck.license.url";
