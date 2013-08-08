@@ -5,6 +5,10 @@ Dependency Check Sonar Plugin
 
 This Sonar plugin ensures that projects in an organization adhere to a set of standard libraries and versions. This enables the governance of the used libraries and licences.
 
+## License
+
+This software is licensed under the Apache Software License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0.txt
+
 ## Features
 
 ### Analysis

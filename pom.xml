@@ -1,10 +1,28 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <groupId>org.codehaus.sonar-plugins</groupId>
   <artifactId>sonar-dependency-check-plugin</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <packaging>sonar-plugin</packaging>
+
+  <name>Sonar Dependency Check Plugin</name>
+  <description>This Sonar plugin ensures that projects in an organization adhere to a set of standard libraries and versions. This enables the governance of the used libraries and licences.</description>
+  <url>https://github.com/porscheinformatik/sonar-dependency-check-plugin</url>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <inceptionYear>2013</inceptionYear>
+
+  <scm>
+  	<url>https://github.com/porscheinformatik/sonar-dependency-check-plugin</url>
+  	<connection>scm:git:http://github.com/porscheinformatik/sonar-dependency-check-plugin.git</connection>
+  </scm>
+
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
@@ -14,6 +32,7 @@
     </dependency>
   </dependencies>
 
+  <packaging>sonar-plugin</packaging>
   <build>
     <plugins>
       <plugin>
@@ -37,4 +56,5 @@
       </plugin>
     </plugins>
   </build>
+
 </project>
