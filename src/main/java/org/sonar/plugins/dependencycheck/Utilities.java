@@ -30,7 +30,7 @@ public final class Utilities {
   /**
    * Search for a license by its ID (the one that is written on top of the properties file with the tag:
    * 'licenses.list').
-   * 
+   *
    * @param licenseName - name of the used license
    * @param allowedLicenses - list of allowed licenses
    * @return the found license
@@ -49,7 +49,7 @@ public final class Utilities {
 
   /**
    * Searches through the list of allowed dependencies.
-   * 
+   *
    * @param d - currently handled dependency
    * @param allowedProjectDependencies - list of allowed dependencies
    * @return true if the dependency is in the allowed list
@@ -62,7 +62,7 @@ public final class Utilities {
 
   /**
    * searches for the currently handled dependency and checks if it is in the allowed version range (true)
-   * 
+   *
    * @param d - currently handled dependency
    * @param allowedProjectDependencies - list of available dependencies
    * @return dependency in version range
@@ -74,7 +74,7 @@ public final class Utilities {
 
   /**
    * Checks if the version used is in the allowed range.
-   * 
+   *
    * @param versionUsed - used versions
    * @param versionRange - allowed versions
    * @return true if version used is in range
@@ -90,14 +90,14 @@ public final class Utilities {
       return true;
     }
 
-    regEx = "(.*)";
+    regEx = "(.*)[\\Q[,\\E]";
 
     temp = subVersions[0];
     for (int i = 1; i < subVersions.length; i++) {
       temp = temp.concat(SPLIT_BY_DOT + subVersions[i]);
     }
 
-    regEx += temp + "\\](.*)|(.*)\\[" + temp + "(.*)";
+    regEx += temp + "\\](.*)|(.*)\\[" + temp + "[\\Q],\\E](.*)";
     if (versionRange.matches(regEx)) {
       return true;
     }
@@ -114,7 +114,7 @@ public final class Utilities {
 
   /**
    * Checks whether versionRange is an open range and if so it checks if subVersions is allowed in it.
-   * 
+   *
    * @param versionRange - allowed version range
    * @param subVersions - version used split by dots (into sub versions)
    * @return true if version is allowed
@@ -153,7 +153,7 @@ public final class Utilities {
 
   /**
    * Checks whether versionRange is a closed range and if so it checks if subVersions is allowed in it.
-   * 
+   *
    * @param versionRange - allowed version range
    * @param subVersions - version used split by dots (into sub versions)
    * @return true if version is allowed
@@ -171,7 +171,9 @@ public final class Utilities {
       String[] foundLowerBorder = foundVersion[0].substring(1, foundVersion[0].length()).split(SPLIT_BY_DOT);
       String[] foundUpperBorder = foundVersion[1].substring(0, foundVersion[1].length() - 1).split(SPLIT_BY_DOT);
 
-      for (int i = 0; i < foundVersion.length; i++) {
+      int maxCount = Math.max(foundLowerBorder.length, foundUpperBorder.length);
+
+      for (int i = 0; i < maxCount; i++) {
         if (getVersionDifference(foundLowerBorder[i], subVersions[i]) > 0
           || getVersionDifference(foundUpperBorder[i], subVersions[i]) < 0) {
           break;
@@ -187,7 +189,7 @@ public final class Utilities {
 
   /**
    * Checks if the version is allowed between the 2 borders of the closed range.
-   * 
+   *
    * @param foundLowerBorder - lower border of the closed range, split by dots
    * @param foundUpperBorder - upper border of the closed range, split by dots
    * @param subVersions - version used split by dots
@@ -216,7 +218,7 @@ public final class Utilities {
 
   /**
    * checks if used version is bigger than the lower border
-   * 
+   *
    * @param foundVersion - lower border of version range
    * @param subVersions - used version
    * @return true if version is allowed
@@ -235,7 +237,7 @@ public final class Utilities {
 
   /**
    * Checks if used version is bigger than the lower border.
-   * 
+   *
    * @param foundVersion - upper border of version range
    * @param subVersions - used version
    * @return true if version is allowed
@@ -255,7 +257,7 @@ public final class Utilities {
 
   /**
    * Calculates the difference between two versions.
-   * 
+   *
    * @param versionRange - allowed version range
    * @param versionUsed - used version range
    * @return the difference between the version
@@ -266,7 +268,7 @@ public final class Utilities {
 
   /**
    * Searches the name (title) of the license of the dependency.
-   * 
+   *
    * @param d - used dependency
    * @param allowedProjectDependencies - list of allowed dependencies
    * @return name of the license or a empty String if nothing has been found
@@ -278,7 +280,7 @@ public final class Utilities {
 
   /**
    * Searches the license of the used dependency.
-   * 
+   *
    * @param d - used dependency
    * @param allowedProjectDependencies - allowed dependencies
    * @return the found license or null if nothing has been found
@@ -292,7 +294,7 @@ public final class Utilities {
 
   /**
    * Searches for a dependency in a list of allowed dependencies.
-   * 
+   *
    * @param d - currently handled dependency
    * @param allowedProjectDependencies - list of allowed dependencies
    * @return version range of the found dependency or an empty string
@@ -304,7 +306,7 @@ public final class Utilities {
 
   /**
    * Searches for a project dependency in the list of the allowed dependency.
-   * 
+   *
    * @param d - currently handled dependency
    * @param allowedProjectDependencies - list of allowed dependencies
    * @return found project dependency
@@ -322,7 +324,7 @@ public final class Utilities {
 
   /**
    * Concatenates a SortedSet of Strings with a semicolon between them.
-   * 
+   *
    * @param sortedDependencies - SortedSet of Strings
    * @return concatenated string
    */
@@ -336,7 +338,7 @@ public final class Utilities {
 
   /**
    * Checks if the dependency has the same root as the project.
-   * 
+   *
    * @param d - dependency
    * @return true if it has the same root, false if not
    */
@@ -345,6 +347,22 @@ public final class Utilities {
     if (ResourceUtils.isProject(d.getTo()) && !ResourceUtils.isLibrary(d.getTo())) {
       p = (Project) d.getTo();
       return p.getRoot().equals(((Project) d.getFrom()).getRoot());
+    }
+    return false;
+  }
+
+  /**
+   * checks if the maven scope of the dependency is in the list of allowed scopes
+   *
+   * @param d - checked Dependency
+   * @param allowedScopes - allowed maven scopes
+   * @return true if maven scope of d is in allowedScopes
+   */
+  public static boolean inCheckScope(Dependency d, List<String> allowedScopes) {
+    for (String scope : allowedScopes) {
+      if (scope.equals(d.getUsage())) {
+        return true;
+      }
     }
     return false;
   }

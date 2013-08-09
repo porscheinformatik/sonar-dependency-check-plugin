@@ -1,13 +1,5 @@
 package org.sonar.plugins.dependencycheck;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
-import static com.google.common.collect.Sets.newTreeSet;
-
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.component.ResourcePerspectives;
@@ -22,6 +14,13 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rule.RuleKey;
 
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+
+import static com.google.common.collect.Lists.*;
+import static com.google.common.collect.Sets.*;
+
 /**
  * This class creates Issues and Measures for the analyzed project.
  */
@@ -31,7 +30,7 @@ public final class DependencyCheckDecorator implements Decorator {
 
   /**
    * Dependency Injection of settings and perspectives
-   * 
+   *
    * @param settings - settings for the plugin (contains the properties)
    * @param perspectives - needed for creating issues
    */
@@ -51,7 +50,7 @@ public final class DependencyCheckDecorator implements Decorator {
   /**
    * Creates a List of allowed Dependencies for the Project - configurable in the Project settings in the category
    * dependency check
-   * 
+   *
    * @return List of allowed dependencies
    */
   private List<ProjectDependency> getAllowedProjectDependencies() {
@@ -98,6 +97,26 @@ public final class DependencyCheckDecorator implements Decorator {
     return result;
   }
 
+  private List<String> getAllowedScopes() {
+
+    List<String> allowedScopes = newArrayList();
+
+    if (settings.getBoolean(DependencyCheckMetrics.SCOPE_COMPILE_PROPERTY)) {
+      allowedScopes.add("compile");
+    }
+    if (settings.getBoolean(DependencyCheckMetrics.SCOPE_RUNTIME_PROPERTY)) {
+      allowedScopes.add("runtime");
+    }
+    if (settings.getBoolean(DependencyCheckMetrics.SCOPE_TEST_PROPERTY)) {
+      allowedScopes.add("test");
+    }
+    if (settings.getBoolean(DependencyCheckMetrics.SCOPE_PROVIDED_PROPERTY)) {
+      allowedScopes.add("provided");
+    }
+
+    return allowedScopes;
+  }
+
   /**
    * @return a List of allowed Licenses for the Project - configurable in settings
    */
@@ -135,7 +154,7 @@ public final class DependencyCheckDecorator implements Decorator {
   /**
    * Creates Issues if rules are violated and appends information about the used dependencies and licenses on 2
    * StringBuilders
-   * 
+   *
    * @param project - the current Project
    * @param context
    * @param d - currently handled dependency
@@ -201,7 +220,7 @@ public final class DependencyCheckDecorator implements Decorator {
       return;
     }
 
-    SortedSet<String> lincenseAlalysisResult = newTreeSet();
+    SortedSet<String> lincenseAnalysisResult = newTreeSet();
     SortedSet<String> dependencyAnalysisResult = newTreeSet();
     Set<String> handledToKeys = newHashSet();
 
@@ -209,15 +228,17 @@ public final class DependencyCheckDecorator implements Decorator {
     Project project = (Project) resource;
 
     List<ProjectDependency> allowedProjectDependencies = getAllowedProjectDependencies();
+    List<String> allowedScopes = getAllowedScopes();
 
     Set<Dependency> dependencies = context.getDependencies();
 
     for (Dependency d : dependencies) {
       if (d.getFrom().getKey().equals(project.getKey())
         && !handledToKeys.contains(d.getTo().getKey())
-        && !Utilities.hasSameRoot(d)) {
+        && !Utilities.hasSameRoot(d)
+        && Utilities.inCheckScope(d, allowedScopes)) {
 
-        checkDependency(project, d, dependencyAnalysisResult, lincenseAlalysisResult, allowedProjectDependencies);
+        checkDependency(project, d, dependencyAnalysisResult, lincenseAnalysisResult, allowedProjectDependencies);
 
         handledToKeys.add(d.getTo().getKey());
       }
@@ -238,12 +259,13 @@ public final class DependencyCheckDecorator implements Decorator {
             new Measure[context.getChildrenMeasures(DependencyCheckMetrics.LICENSE).size()]);
 
     for (Measure measure : licenseMeasures) {
-      if (!lincenseAlalysisResult.toString().contains(measure.getData())) {
-        lincenseAlalysisResult.add(measure.getData());
+      if (!lincenseAnalysisResult.toString().contains(measure.getData())) {
+        lincenseAnalysisResult.add(measure.getData());
       }
     }
 
     context.saveMeasure(new Measure(DependencyCheckMetrics.DEPENDENCY, Utilities.concatStringList(dependencyAnalysisResult)));
-    context.saveMeasure(new Measure(DependencyCheckMetrics.LICENSE, Utilities.concatStringList(lincenseAlalysisResult)));
+    context.saveMeasure(new Measure(DependencyCheckMetrics.LICENSE, Utilities.concatStringList(lincenseAnalysisResult)));
   }
+
 }
