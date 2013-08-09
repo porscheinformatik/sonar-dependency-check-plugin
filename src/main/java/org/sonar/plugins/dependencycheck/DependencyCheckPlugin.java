@@ -23,6 +23,7 @@ public final class DependencyCheckPlugin extends SonarPlugin {
     String subGlobal = "Global Dependencies";
     String subProject = "Project Dependencies";
     String subLicense = "Licenses";
+    String subScope = "Scope";
     ImmutableList.Builder<Object> extensions = ImmutableList.builder();
 
     List<PropertyFieldDefinition> libraryField = new ArrayList<PropertyFieldDefinition>();
@@ -114,6 +115,42 @@ public final class DependencyCheckPlugin extends SonarPlugin {
         .fields(licenseField)
         .build()
         );
+
+    extensions.add(PropertyDefinition.builder(DependencyCheckMetrics.SCOPE_COMPILE_PROPERTY)
+        .category(category)
+        .subCategory(subScope)
+        .name("Compile")
+        .description("Whether dependencies of the scope compile should be checked.")
+        .type(PropertyType.BOOLEAN)
+        .onQualifiers(Qualifiers.PROJECT)
+        .build());
+
+    extensions.add(PropertyDefinition.builder(DependencyCheckMetrics.SCOPE_RUNTIME_PROPERTY)
+        .category(category)
+        .subCategory(subScope)
+        .name("Runtime")
+        .description("Whether dependencies of the scope runtime should be checked.")
+        .type(PropertyType.BOOLEAN)
+        .onQualifiers(Qualifiers.PROJECT)
+        .build());
+
+    extensions.add(PropertyDefinition.builder(DependencyCheckMetrics.SCOPE_TEST_PROPERTY)
+        .category(category)
+        .subCategory(subScope)
+        .name("Test")
+        .description("Whether dependencies of the scope test should be checked.")
+        .type(PropertyType.BOOLEAN)
+        .onQualifiers(Qualifiers.PROJECT)
+        .build());
+
+    extensions.add(PropertyDefinition.builder(DependencyCheckMetrics.SCOPE_PROVIDED_PROPERTY)
+        .category(category)
+        .subCategory(subScope)
+        .name("Provided")
+        .description("Whether dependencies of the scope provided should be checked.")
+        .type(PropertyType.BOOLEAN)
+        .onQualifiers(Qualifiers.PROJECT)
+        .build());
 
     extensions.add(DependencyCheckRuleRepository.class);
     extensions.add(DependencyCheckMetrics.class);
