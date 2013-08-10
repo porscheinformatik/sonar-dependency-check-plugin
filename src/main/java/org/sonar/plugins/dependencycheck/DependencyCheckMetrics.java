@@ -34,6 +34,11 @@ public final class DependencyCheckMetrics implements Metrics {
   public static final String LICENSE_SOURCETYPE_PROPERTY = "sonar.dependencycheck.license.sourcetype";
   public static final String LICENSE_COMMERCIAL_PROPERTY = "sonar.dependencycheck.license.commercial";
 
+  public static final String SCOPE_TEST_PROPERTY = "dependencycheck.scope.test";
+  public static final String SCOPE_PROVIDED_PROPERTY = "dependencycheck.scope.provided";
+  public static final String SCOPE_COMPILE_PROPERTY = "dependencycheck.scope.compile";
+  public static final String SCOPE_RUNTIME_PROPERTY = "dependencycheck.scope.runtime";
+
   public static final Metric DEPENDENCY = new Metric.Builder(DEPENDENCY_CHECK_DEPENDENCY_KEY,
       "Dependency Check - Dependencies",
       Metric.ValueType.DATA)
