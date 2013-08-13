@@ -1,9 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.codehaus.sonar-plugins</groupId>
+  <parent>
+    <groupId>org.codehaus.sonar-plugins</groupId>
+    <artifactId>parent</artifactId>
+    <version>16</version>
+  </parent>
+
   <artifactId>sonar-dependency-check-plugin</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <packaging>sonar-plugin</packaging>
 
   <name>Sonar Dependency Check Plugin</name>
   <description>This Sonar plugin ensures that projects in an organization adhere to a set of standard libraries and versions. This enables the governance of the used libraries and licences.</description>
@@ -21,10 +27,28 @@
     </license>
   </licenses>
 
+  <developers>
+    <developer>
+      <id>derkoe</id>
+      <name>Christian Köberl</name>
+    </developer>
+    <developer>
+      <id>condorio</id>
+      <name>Michi Krejci</name>
+    </developer>
+  </developers>
+
   <scm>
-    <url>https://github.com/porscheinformatik/sonar-dependency-check-plugin</url>
     <connection>scm:git:http://github.com/porscheinformatik/sonar-dependency-check-plugin.git</connection>
+    <developerConnection>scm:git:http://github.com/porscheinformatik/sonar-dependency-check-plugin.git</developerConnection>
+    <tag>HEAD</tag>
+    <url>https://github.com/porscheinformatik/sonar-dependency-check-plugin</url>
   </scm>
+
+  <properties>
+    <license.name>AL2</license.name>
+    <sonar.pluginClass>org.sonar.plugins.dependencycheck.DependencyCheckPlugin</sonar.pluginClass>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -40,30 +64,5 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <packaging>sonar-plugin</packaging>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.sonar</groupId>
-        <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <version>1.3</version>
-        <extensions>true</extensions>
-        <configuration>
-          <pluginClass>org.sonar.plugins.dependencycheck.DependencyCheckPlugin</pluginClass>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
-        <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>
