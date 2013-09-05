@@ -139,6 +139,7 @@ public final class DependencyCheckPlugin extends SonarPlugin {
         .name("Compile")
         .description("Whether dependencies of the scope compile should be checked.")
         .type(PropertyType.BOOLEAN)
+        .defaultValue("true")
         .onQualifiers(Qualifiers.PROJECT)
         .build());
 
@@ -148,6 +149,7 @@ public final class DependencyCheckPlugin extends SonarPlugin {
         .name("Runtime")
         .description("Whether dependencies of the scope runtime should be checked.")
         .type(PropertyType.BOOLEAN)
+        .defaultValue("true")
         .onQualifiers(Qualifiers.PROJECT)
         .build());
 
@@ -157,6 +159,7 @@ public final class DependencyCheckPlugin extends SonarPlugin {
         .name("Test")
         .description("Whether dependencies of the scope test should be checked.")
         .type(PropertyType.BOOLEAN)
+        .defaultValue("false")
         .onQualifiers(Qualifiers.PROJECT)
         .build());
 
@@ -166,6 +169,7 @@ public final class DependencyCheckPlugin extends SonarPlugin {
         .name("Provided")
         .description("Whether dependencies of the scope provided should be checked.")
         .type(PropertyType.BOOLEAN)
+        .defaultValue("false")
         .onQualifiers(Qualifiers.PROJECT)
         .build());
 
