@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.component.ResourcePerspectives;
@@ -44,6 +46,7 @@ import org.sonar.api.rule.RuleKey;
  * This class creates Issues and Measures for the analyzed project.
  */
 public final class DependencyCheckDecorator implements Decorator {
+  private static final Logger LOGGER = LoggerFactory.getLogger(DependencyCheckDecorator.class);
   private final Settings settings;
   private final ResourcePerspectives perspectives;
 
@@ -153,13 +156,11 @@ public final class DependencyCheckDecorator implements Decorator {
       l.setTitle(settings.getString(temp + DependencyCheckMetrics.LICENSE_TITLE_PROPERTY));
       l.setUrl(settings.getString(temp + DependencyCheckMetrics.LICENSE_URL_PROPERTY));
       l.setDescription(settings.getString(temp + DependencyCheckMetrics.LICENSE_DESCRIPTION_PROPERTY));
-      l.setCommercial(settings.getString(temp + DependencyCheckMetrics.LICENSE_COMMERCIAL_PROPERTY).contains(
-          "true"));
+      l.setCommercial(settings.getBoolean(temp + DependencyCheckMetrics.LICENSE_COMMERCIAL_PROPERTY));
 
-      String st = settings.getString(temp + DependencyCheckMetrics.LICENSE_SOURCETYPE_PROPERTY);
-      if (isNotEmpty(st)) {
-        l.setSourceType(SourceType.valueOf(settings.getString(
-            temp + DependencyCheckMetrics.LICENSE_SOURCETYPE_PROPERTY)));
+      String sourceType = settings.getString(temp + DependencyCheckMetrics.LICENSE_SOURCETYPE_PROPERTY);
+      if (isNotEmpty(sourceType)) {
+        l.setSourceType(SourceType.valueOf(sourceType));
       }
       else {
         l.setSourceType(SourceType.OPENSOURCE_COPYLEFT);
@@ -183,6 +184,9 @@ public final class DependencyCheckDecorator implements Decorator {
    */
   private void checkDependency(Project project, Dependency d, Set<String> allDependencies,
       Set<String> allLicenses, List<ProjectDependency> allowedProjectDependencies) {
+
+    LOGGER.debug("Checking dependency: {}", d);
+
     if (!Utilities.dependencyInList(d, allowedProjectDependencies)) {
 
       allDependencies.add(d.getTo().getKey() + "~" + "no license information" + "~" + "Unlisted");
@@ -246,10 +250,13 @@ public final class DependencyCheckDecorator implements Decorator {
     // resource has to be a project here
     Project project = (Project) resource;
 
+    LOGGER.debug("Dependency check for project: {}", project);
+
     List<ProjectDependency> allowedProjectDependencies = getAllowedProjectDependencies();
     List<String> allowedScopes = getAllowedScopes();
 
     Set<Dependency> dependencies = context.getDependencies();
+    LOGGER.debug("Got dependencies: {}", dependencies);
 
     for (Dependency d : dependencies) {
       if (d.getFrom().getKey().equals(project.getKey())
@@ -263,6 +270,16 @@ public final class DependencyCheckDecorator implements Decorator {
       }
     }
 
+    saveProjectMeasures(context, lincenseAnalysisResult, dependencyAnalysisResult);
+  }
+
+  /**
+   * Saves the dependencies and licenses to project measures for display in UI.
+   * @param context .
+   * @param lincenseAnalysisResult .
+   * @param dependencyAnalysisResult .
+   */
+  private void saveProjectMeasures(DecoratorContext context, SortedSet<String> lincenseAnalysisResult, SortedSet<String> dependencyAnalysisResult) {
     Measure[] dependencyMeasures =
         context.getChildrenMeasures(DependencyCheckMetrics.DEPENDENCY).toArray(
             new Measure[context.getChildrenMeasures(DependencyCheckMetrics.DEPENDENCY).size()]);
