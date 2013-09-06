@@ -15,9 +15,9 @@ This software is licensed under the Apache Software License, Version 2.0, http:/
 
 During the project analysis all dependencies are checked against the defined list of allowed libraries. If a project uses an unlisted dependency, a violation with level "Blocker" will be added. If a project uses a listed dependency out of version range, a violation with level "Critical" will be added.
 
-### Widget
+### Dependecy Check Page
 
-The plugin contains a widget with all libraries (in form library:version), the licenses used and the status of this dependency. The view also displays a list of all used licences.
+The plugin contains a page with all libraries (in form library:version), the licenses used and the status of this dependency. The view also displays a list of all used licences.
 
 Example:
 <table>
@@ -39,7 +39,7 @@ Licenses:
 
 #### Licenses
 
-A list of licenses are configurable via properties file:
+A list of licenses can be configured via Settings > Configuration.
 
 <table>
   <tr><th>License</th><th>Description</th><th>URL</th></tr>
@@ -50,7 +50,7 @@ A list of licenses are configurable via properties file:
 
 #### Libraries
 
-The list of allowed dependencies with a given version range can be configured. 
+The list of allowed dependencies with a given version range can be configured via Settings > Configuration.
 
 Here is an example:
 <table>
