@@ -1,0 +1,67 @@
+<% depMeasure = @snapshot.measure('dependencycheck.dependency').data
+dependencies = depMeasure.split(';') %>
+
+<% licMeasure = @snapshot.measure('dependencycheck.license').data
+licenses = licMeasure.split(';') %>
+
+<h3>Dependencies</h3>
+<table class="data" id="libraryTable">
+  <caption>This table shows all dependencies of this project and their dependency check status.</caption>
+  <thead>
+    <tr>
+      <th>Library</th>
+      <th>License</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% 
+    index = 1;
+    dependencies.each do |dependency|
+      d = dependency.split('~')
+      rowClass = ((index % 2) == 0) ? "even" : "odd"
+      index += 1
+  %>
+    <tr class=<%=rowClass %>>
+      <td><%= d[0] %></td>
+      <td><%= d[1] %></td>
+      <td>
+      <%= case d[2]
+           when 'OK'
+             image_tag('/images/levels/ok.png', :alt => 'OK')
+      	   when 'UNLISTED', 'Unlisted'
+	         image_tag('/images/levels/error.png', :alt => 'Unlisted dependency')
+	       when 'WRONG_VERSION', 'Wrong Version'
+	         image_tag('/images/levels/warn.png', :alt => 'Wrong version')
+	       else
+	         'Unknown status'
+	       end %>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+
+<h3>Licenses</h3>
+<table class="data" id="libraryTable">
+  <caption>This table shows all used licenses for the current project.</caption>
+  <thead>
+    <tr>
+      <th><b>License</b></th>
+      <th><b>URL</b></th>
+    </tr>
+  </thead>
+  <tbody>
+  <% 
+    index = 1;
+    licenses.each do |license|
+      rowClass = ((index % 2) == 0) ? "even" : "odd"
+      index += 1
+      l = license.split('~') %>
+    <tr class=<%=rowClass %>>
+      <td><%= l[0] %></td>
+      <td><a href="<%= l[1] %>"> <%= l[1] %></a></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

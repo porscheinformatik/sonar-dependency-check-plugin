@@ -20,8 +20,10 @@ package org.sonar.plugins.dependencycheck;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.collect.Sets.newTreeSet;
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -59,7 +61,6 @@ public final class DependencyCheckDecorator implements Decorator {
   public DependencyCheckDecorator(Settings settings, ResourcePerspectives perspectives) {
     this.settings = settings;
     this.perspectives = perspectives;
-
   }
 
   /**
@@ -189,7 +190,7 @@ public final class DependencyCheckDecorator implements Decorator {
 
     if (!Utilities.dependencyInList(d, allowedProjectDependencies)) {
 
-      allDependencies.add(d.getTo().getKey() + "~" + "no license information" + "~" + "Unlisted");
+      allDependencies.add(d.getTo().getKey() + "~" + "no license information" + "~" + "UNLISTED");
 
       Issuable issuable = perspectives.as(Issuable.class, (Resource) project);
       if (issuable != null) {
@@ -204,7 +205,7 @@ public final class DependencyCheckDecorator implements Decorator {
     }
     else if (!Utilities.dependencyInVersionRange(d, allowedProjectDependencies)) {
 
-      allDependencies.add(d.getTo().getKey() + "~" + Utilities.getLicenseName(d, allowedProjectDependencies) + "~" + "Wrong Version");
+      allDependencies.add(d.getTo().getKey() + "~" + Utilities.getLicenseName(d, allowedProjectDependencies) + "~" + "WRONG_VERSION");
 
       License l = Utilities.getLicense(d, allowedProjectDependencies);
       allLicenses.add(l.getTitle() + "~" + l.getUrl());
@@ -255,13 +256,12 @@ public final class DependencyCheckDecorator implements Decorator {
     List<ProjectDependency> allowedProjectDependencies = getAllowedProjectDependencies();
     List<String> allowedScopes = getAllowedScopes();
 
-    Set<Dependency> dependencies = context.getDependencies();
+    Collection<Dependency> dependencies = context.getOutgoingDependencies();
     LOGGER.debug("Got dependencies: {}", dependencies);
 
     for (Dependency d : dependencies) {
-      if (d.getFrom().getKey().equals(project.getKey())
+      if (ResourceUtils.isLibrary(d.getTo()) // only include libraries
         && !handledToKeys.contains(d.getTo().getKey())
-        && !Utilities.hasSameRoot(d)
         && Utilities.inCheckScope(d, allowedScopes)) {
 
         checkDependency(project, d, dependencyAnalysisResult, lincenseAnalysisResult, allowedProjectDependencies);
@@ -285,9 +285,8 @@ public final class DependencyCheckDecorator implements Decorator {
             new Measure[context.getChildrenMeasures(DependencyCheckMetrics.DEPENDENCY).size()]);
 
     for (Measure measure : dependencyMeasures) {
-      if (!dependencyAnalysisResult.toString().contains(measure.getData())) {
-        dependencyAnalysisResult.add(measure.getData());
-      }
+      String[] subProjectDependencies = measure.getData().split(";");
+      dependencyAnalysisResult.addAll(asList(subProjectDependencies));
     }
 
     Measure[] licenseMeasures =
@@ -295,9 +294,8 @@ public final class DependencyCheckDecorator implements Decorator {
             new Measure[context.getChildrenMeasures(DependencyCheckMetrics.LICENSE).size()]);
 
     for (Measure measure : licenseMeasures) {
-      if (!lincenseAnalysisResult.toString().contains(measure.getData())) {
-        lincenseAnalysisResult.add(measure.getData());
-      }
+      String[] subProjectLicenses = measure.getData().split(";");
+      lincenseAnalysisResult.addAll(asList(subProjectLicenses));
     }
 
     context.saveMeasure(new Measure(DependencyCheckMetrics.DEPENDENCY, Utilities.concatStringList(dependencyAnalysisResult)));
