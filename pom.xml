@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>sonar-dependency-check-plugin</artifactId>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.1.1</version>
   <packaging>sonar-plugin</packaging>
 
   <name>Sonar Dependency Check Plugin</name>
@@ -41,7 +41,7 @@
   <scm>
     <connection>scm:git:http://github.com/porscheinformatik/sonar-dependency-check-plugin.git</connection>
     <developerConnection>scm:git:http://github.com/porscheinformatik/sonar-dependency-check-plugin.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>1.1.1</tag>
     <url>https://github.com/porscheinformatik/sonar-dependency-check-plugin</url>
   </scm>
 
