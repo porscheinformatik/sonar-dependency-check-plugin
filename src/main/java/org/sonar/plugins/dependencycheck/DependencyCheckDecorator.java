@@ -280,22 +280,25 @@ public final class DependencyCheckDecorator implements Decorator {
    * @param dependencyAnalysisResult .
    */
   private void saveProjectMeasures(DecoratorContext context, SortedSet<String> lincenseAnalysisResult, SortedSet<String> dependencyAnalysisResult) {
-    Measure[] dependencyMeasures =
-        context.getChildrenMeasures(DependencyCheckMetrics.DEPENDENCY).toArray(
-            new Measure[context.getChildrenMeasures(DependencyCheckMetrics.DEPENDENCY).size()]);
 
-    for (Measure measure : dependencyMeasures) {
-      String[] subProjectDependencies = measure.getData().split(";");
-      dependencyAnalysisResult.addAll(asList(subProjectDependencies));
+    Collection<Measure> dependencyMeasures = context.getChildrenMeasures(DependencyCheckMetrics.DEPENDENCY);
+    if (dependencyMeasures != null) {
+      for (Measure measure : dependencyMeasures) {
+        if (measure.getData() != null) {
+          String[] subProjectDependencies = measure.getData().split(";");
+          dependencyAnalysisResult.addAll(asList(subProjectDependencies));
+        }
+      }
     }
 
-    Measure[] licenseMeasures =
-        context.getChildrenMeasures(DependencyCheckMetrics.LICENSE).toArray(
-            new Measure[context.getChildrenMeasures(DependencyCheckMetrics.LICENSE).size()]);
-
-    for (Measure measure : licenseMeasures) {
-      String[] subProjectLicenses = measure.getData().split(";");
-      lincenseAnalysisResult.addAll(asList(subProjectLicenses));
+    Collection<Measure> licenseMeasures = context.getChildrenMeasures(DependencyCheckMetrics.LICENSE);
+    if (licenseMeasures != null) {
+      for (Measure measure : licenseMeasures) {
+        if (measure.getData() != null) {
+          String[] subProjectLicenses = measure.getData().split(";");
+          lincenseAnalysisResult.addAll(asList(subProjectLicenses));
+        }
+      }
     }
 
     context.saveMeasure(new Measure(DependencyCheckMetrics.DEPENDENCY, Utilities.concatStringList(dependencyAnalysisResult)));
