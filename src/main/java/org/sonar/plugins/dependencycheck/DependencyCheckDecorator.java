@@ -192,7 +192,7 @@ public final class DependencyCheckDecorator implements Decorator {
 
       allDependencies.add(d.getTo().getKey() + "~" + "no license information" + "~" + "UNLISTED");
 
-      Issuable issuable = perspectives.as(Issuable.class, (Resource) project);
+      Issuable issuable = perspectives.as(Issuable.class, (Resource<?>) project);
       if (issuable != null) {
         Issue issue = issuable.newIssueBuilder()
             .ruleKey(RuleKey.of(DependencyCheckMetrics.DEPENDENCY_CHECK_KEY,
@@ -210,7 +210,7 @@ public final class DependencyCheckDecorator implements Decorator {
       License l = Utilities.getLicense(d, allowedProjectDependencies);
       allLicenses.add(l.getTitle() + "~" + l.getUrl());
 
-      Issuable issuable = perspectives.as(Issuable.class, (Resource) project);
+      Issuable issuable = perspectives.as(Issuable.class, (Resource<?>) project);
       if (issuable != null) {
         Issue issue =
             issuable
@@ -256,18 +256,18 @@ public final class DependencyCheckDecorator implements Decorator {
     List<ProjectDependency> allowedProjectDependencies = getAllowedProjectDependencies();
     List<String> allowedScopes = getAllowedScopes();
 
-    Collection<Dependency> dependencies = context.getOutgoingDependencies();
+    Collection<Dependency> dependencies = context.getDependencies();
     LOGGER.debug("Got dependencies: {}", dependencies);
 
     for (Dependency d : dependencies) {
-      if (ResourceUtils.isLibrary(d.getTo()) // only include libraries
-        && !handledToKeys.contains(d.getTo().getKey())
-        && Utilities.inCheckScope(d, allowedScopes)) {
-
-        checkDependency(project, d, dependencyAnalysisResult, lincenseAnalysisResult, allowedProjectDependencies);
-
-        handledToKeys.add(d.getTo().getKey());
-      }
+        if (ResourceUtils.isLibrary(d.getTo()) // only include libraries
+            && !handledToKeys.contains(d.getTo().getKey())
+            && Utilities.inCheckScope(d, allowedScopes)) {
+            
+            checkDependency(project, d, dependencyAnalysisResult, lincenseAnalysisResult, allowedProjectDependencies);
+            
+            handledToKeys.add(d.getTo().getKey());
+        }
     }
 
     saveProjectMeasures(context, lincenseAnalysisResult, dependencyAnalysisResult);
