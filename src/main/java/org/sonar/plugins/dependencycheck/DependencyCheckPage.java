@@ -33,7 +33,7 @@ import org.sonar.api.web.RubyRailsPage;
 public class DependencyCheckPage extends AbstractRubyTemplate implements RubyRailsPage {
 
   public String getId() {
-    return "org.sonar.plugins.dependencycheck.page";
+    return "org.sonar.plugins.dependencycheck.libraries";
   }
 
   public String getTitle() {
