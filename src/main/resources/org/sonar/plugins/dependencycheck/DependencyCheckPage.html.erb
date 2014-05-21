@@ -10,6 +10,7 @@
     dependencies = Dependency.find(:all, :include => ['to','to_snapshot'], :conditions => ["project_snapshot_id=? and (from_scope in (?) or to_scope in (?))", project_sid, scopes, scopes], :order => "projects.kee")
 %>
 
+
 <!--Laedt die Projects und Versions aus der Dependency Check Page-->
 
 <% 
@@ -37,7 +38,9 @@
 				break 
 			end
 		end
-		entries.push([dep.to.name, dep.to_snapshot.version, license, status])
+		if status!=''
+			entries.push([dep.to.name, dep.to_snapshot.version, license, status])
+		end
 	end
 %>
 <table class="data" id="libraryTable">
@@ -87,5 +90,3 @@ licenses = licMeasure.split(';') %>
   <% end %>
   </tbody>
 </table>
-
-

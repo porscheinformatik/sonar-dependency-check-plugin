@@ -240,7 +240,7 @@ public final class DependencyCheckDecorator implements Decorator {
    * {@inheritDoc}
    */
   public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {
-    if (!ResourceUtils.isProject(resource)) {
+    if (!(ResourceUtils.isProject(resource) || ResourceUtils.isModuleProject(resource))) {
       return;
     }
 
