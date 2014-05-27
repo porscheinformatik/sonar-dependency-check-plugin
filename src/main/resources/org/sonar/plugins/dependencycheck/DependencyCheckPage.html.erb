@@ -1,15 +1,21 @@
 <h3>Dependencies</h3>
 
-<% require 'csv'%>
-
 <!--Laedt die Projects und ihre Versions-->
 
 <%
     project_sid = @resource.last_snapshot.project_snapshot.id
     scopes = ['PRJ']
-    dependencies = Dependency.find(:all, :include => ['to','to_snapshot'], :conditions => ["project_snapshot_id=? and (from_scope in (?) or to_scope in (?))", project_sid, scopes, scopes], :order => "projects.kee")
-%>
+%>  
+    
+<!--Unterscheidet bzgl des Ladens der Dependencies, ob das gesamte Projekt oder ein bestimmtes Modul ausgewaehlt ist-->
 
+<%      
+	if @resource.qualifier == 'TRK'
+		dependencies=Dependency.find(:all, :include => ['to','to_snapshot'], :order => "projects.kee")
+	else
+	    dependencies = Dependency.find(:all, :include => ['to','to_snapshot'], :conditions => ["project_snapshot_id=? and (from_scope in (?) or to_scope in (?))", project_sid, scopes, scopes], :order => "projects.kee")
+ 	end
+%>
 
 <!--Laedt die Projects und Versions aus der Dependency Check Page-->
 
@@ -44,7 +50,7 @@
 	end
 %>
 <table class="data" id="libraryTable">
-<caption>This table shows all dependencies of this project and their dependency check status.</caption>
+<caption>This table shows either all or module specific dependencies of this project and their dependency check status. It depends on what is selected, the project it self or a certain module.</caption>
 <thead>
 	<tr><th>Library</th><th>Version</th><th>License</th><th>Status</th></tr>
 </thead>
@@ -68,8 +74,8 @@
 licenses = licMeasure.split(';') %>
 
 <h3>Licenses</h3>
-<table class="data" id="libraryTable">
-  <caption>This table shows all used licenses for the current project.</caption>
+  <table class="data" id="libraryTable">
+  <caption>This table shows all used licenses for the current project/module. It depends on what is selected, the project it self or a certain module.</caption>
   <thead>
     <tr>
       <th><b>License</b></th>
