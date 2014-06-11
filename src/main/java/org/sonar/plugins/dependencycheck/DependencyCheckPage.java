@@ -28,7 +28,7 @@ import org.sonar.api.web.RubyRailsPage;
  * Page showing the dependency check result.
  */
 @RequiredMeasures(allOf = {DependencyCheckMetrics.DEPENDENCY_CHECK_DEPENDENCY_KEY, DependencyCheckMetrics.DEPENDENCY_CHECK_LICENSE_KEY})
-@ResourceQualifier(Qualifiers.PROJECT)
+@ResourceQualifier({Qualifiers.PROJECT, Qualifiers.MODULE})
 @NavigationSection({NavigationSection.RESOURCE})
 public class DependencyCheckPage extends AbstractRubyTemplate implements RubyRailsPage {
 
@@ -42,7 +42,7 @@ public class DependencyCheckPage extends AbstractRubyTemplate implements RubyRai
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/dependencycheck/DependencyCheckPage.html.erb";
+    return "D:/workspace/sonar-dependency-check-plugin/src/main/resources/org/sonar/plugins/dependencycheck/DependencyCheckPage.html.erb";//"/org/sonar/plugins/dependencycheck/DependencyCheckPage.html.erb";
   }
 
 }
