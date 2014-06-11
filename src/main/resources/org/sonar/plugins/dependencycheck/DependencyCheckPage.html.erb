@@ -1,6 +1,5 @@
 <h3>Dependencies</h3>
 
-<!--Laedt die Projects und ihre Versions-->
 
 <%
     project_sid = @resource.last_snapshot.project_snapshot.id
@@ -30,6 +29,7 @@
 			d = checkedDep.split('~')
 			if dep.to.key == d[0]
 				license = d[1]
+				status = d[2]
 				status = 
 					case d[2] #status
 						when 'OK'
@@ -96,3 +96,7 @@ licenses = licMeasure.split(';') %>
   <% end %>
   </tbody>
 </table>
+<br>
+<a href="<%= ApplicationController.root_context -%>/api/export/to_csv?id=<%= @resource.id %>">
+<button>Export as CSV</button>
+</a>
