@@ -17,16 +17,30 @@
  */
 package org.sonar.plugins.dependencycheck;
 
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
+
 /**
  * This class stores a License which is used in the plugin.
  */
+
+@XmlRootElement
+@XmlType
+@XmlAccessorType(XmlAccessType.FIELD)
 public class License {
-  private String id;
-  private String title;
-  private String description;
-  private String url;
-  private SourceType sourceType;
-  private boolean commercial;
+  
+    
+    @XmlAttribute private String id;
+    /*@XmlTransient*/ private String title;
+    /*@XmlTransient*/ private String description;
+    /*@XmlTransient*/ private String url;
+    /*@XmlTransient*/ private SourceType sourceType;
+    /*@XmlTransient*/ private boolean commercial;
 
   public String getId() {
     return id;
@@ -75,4 +89,12 @@ public class License {
   public void setCommercial(boolean commercial) {
     this.commercial = commercial;
   }
+  
+ 
+  @Override
+  public String toString() {
+      return "License [id=" + id + ", title=" + title + ", description=" + description + ", url=" + url 
+              + ", sourceType=" + sourceType + ",commercial="+ commercial + "]";
+  }
+  
 }

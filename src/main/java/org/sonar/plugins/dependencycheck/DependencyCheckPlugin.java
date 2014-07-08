@@ -107,18 +107,21 @@ public final class DependencyCheckPlugin extends SonarPlugin {
         .subCategory(subGlobal)
         .name("Library")
         .description("Insert information about the allowed Libraries")
-        .type(PropertyType.PROPERTY_SET)
-        .fields(libraryField)
+        //.type(PropertyType.PROPERTY_SET)//
+        .type(PropertyType.TEXT)
+        //.fields(libraryField)//
         .build()
         );
+        
 
     extensions.add(PropertyDefinition.builder(DependencyCheckMetrics.LIBRARY_PROJECT_PROPERTY)
         .category(category)
         .subCategory(subProject)
         .name("Library")
         .description("Insert information about the allowed Libraries")
-        .type(PropertyType.PROPERTY_SET)
-        .fields(libraryField)
+        //.type(PropertyType.PROPERTY_SET)
+        .type(PropertyType.TEXT)
+        //.fields(libraryField)
         .onQualifiers(Qualifiers.PROJECT)
         .build()
         );
@@ -128,8 +131,9 @@ public final class DependencyCheckPlugin extends SonarPlugin {
         .subCategory(subLicense)
         .name("License")
         .description("Insert information about the allowed Licenses")
-        .type(PropertyType.PROPERTY_SET)
-        .fields(licenseField)
+        //.type(PropertyType.PROPERTY_SET)
+        .type(PropertyType.TEXT)
+        //.fields(licenseField)
         .build()
         );
 
@@ -177,6 +181,7 @@ public final class DependencyCheckPlugin extends SonarPlugin {
     extensions.add(DependencyCheckMetrics.class);
     extensions.add(DependencyCheckDecorator.class);
     extensions.add(DependencyCheckPage.class);
+    extensions.add(DependencyCheckConfigurationPage.class);
 
     return extensions.build();
   }

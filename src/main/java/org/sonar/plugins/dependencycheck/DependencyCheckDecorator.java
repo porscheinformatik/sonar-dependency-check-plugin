@@ -23,6 +23,7 @@ import static com.google.common.collect.Sets.newTreeSet;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
+import java.io.StringReader;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +44,9 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rule.RuleKey;
+
+
+import javax.xml.bind.JAXBException;
 
 /**
  * This class creates Issues and Measures for the analyzed project.
@@ -77,46 +81,49 @@ public final class DependencyCheckDecorator implements Decorator {
    * @return List of allowed dependencies
    */
   private List<ProjectDependency> getAllowedProjectDependencies() {
-    List<ProjectDependency> result = newArrayList();
-
-    String[] allowedDependencies = settings.getStringArray(DependencyCheckMetrics.LIBRARY_PROJECT_PROPERTY);
-
-    List<License> allowedLicenses = getAllowedLicenses();
-
-    for (String string : allowedDependencies) {
-      ProjectDependency pd = new ProjectDependency();
-
-      pd.setKey(settings.getString(DependencyCheckMetrics.LIBRARY_PROJECT_PROPERTY + "." + string + "."
-        + DependencyCheckMetrics.LIBRARY_KEY_PROPERTY));
-      pd.setVersionRange(settings.getString(DependencyCheckMetrics.LIBRARY_PROJECT_PROPERTY + "." + string
-        + "." + DependencyCheckMetrics.LIBRARY_VERSION_PROPERTY));
-      pd.setLicense(Utilities.getLicenseByNameOrId(
-          settings.getString(DependencyCheckMetrics.LIBRARY_PROJECT_PROPERTY + "." + string
-            + "." + DependencyCheckMetrics.LIBRARY_LICENSE_PROPERTY), allowedLicenses));
-
-      if (isNotEmpty(pd.getKey())) {
-        result.add(pd);
+    
+      List<License> allowedLicenses = getAllowedLicenses();
+      List<ProjectDependency> result = newArrayList();
+     
+      DependencyWrapper allowedPds=null;
+      
+      try{
+          allowedPds= JaxbXmlHandler.unmarshalAllowedProjectDependencies(new StringReader(settings.getString(DependencyCheckMetrics.LIBRARY_PROJECT_PROPERTY)));     
       }
-    }
-
-    allowedDependencies = settings.getStringArray(DependencyCheckMetrics.LIBRARY_GLOBAL_PROPERTY);
-
-    for (String string : allowedDependencies) {
-      ProjectDependency pd = new ProjectDependency();
-
-      pd.setKey(settings.getString(DependencyCheckMetrics.LIBRARY_GLOBAL_PROPERTY + "." + string + "."
-        + DependencyCheckMetrics.LIBRARY_KEY_PROPERTY));
-      pd.setVersionRange(settings.getString(DependencyCheckMetrics.LIBRARY_GLOBAL_PROPERTY + "." + string
-        + "." + DependencyCheckMetrics.LIBRARY_VERSION_PROPERTY));
-      pd.setLicense(Utilities.getLicenseByNameOrId(
-          settings.getString(DependencyCheckMetrics.LIBRARY_GLOBAL_PROPERTY + "." + string
-            + "." + DependencyCheckMetrics.LIBRARY_LICENSE_PROPERTY), allowedLicenses));
-
-      if (isNotEmpty(pd.getKey())) {
-        result.add(pd);
+      catch (JAXBException e){
+          e.printStackTrace();
       }
-    }
+      for(ProjectDependency pd:allowedPds.getList()){
+          
+          pd.setKey(settings.getString(DependencyCheckMetrics.LIBRARY_PROJECT_PROPERTY + "." + pd.getKey() + "." + DependencyCheckMetrics.LIBRARY_KEY_PROPERTY));
+          pd.setVersionRange(settings.getString(DependencyCheckMetrics.LIBRARY_PROJECT_PROPERTY + "." + pd.getVersionRange() + "." + DependencyCheckMetrics.LIBRARY_VERSION_PROPERTY));
+          pd.setLicense(Utilities.getLicenseByNameOrId(settings.getString(DependencyCheckMetrics.LIBRARY_PROJECT_PROPERTY + "." + pd.getLicense() + "." + DependencyCheckMetrics.LIBRARY_LICENSE_PROPERTY), allowedLicenses));
+          
+          if (isNotEmpty(pd.getKey())) {
+              result.add(pd);
+            }   
+      }
 
+    DependencyWrapper allowedGlobalPds=null;
+    
+    try{
+        allowedGlobalPds= JaxbXmlHandler.unmarshalAllowedProjectDependencies(new StringReader(settings.getString(DependencyCheckMetrics.LIBRARY_GLOBAL_PROPERTY))); 
+    }
+    catch (JAXBException e){
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
+    for(ProjectDependency pd:allowedGlobalPds.getList()){
+        
+        pd.setKey(settings.getString(DependencyCheckMetrics.LIBRARY_GLOBAL_PROPERTY + "." + pd.getKey() + "." + DependencyCheckMetrics.LIBRARY_KEY_PROPERTY));
+        pd.setVersionRange(settings.getString(DependencyCheckMetrics.LIBRARY_GLOBAL_PROPERTY + "." + pd.getVersionRange() + "." + DependencyCheckMetrics.LIBRARY_VERSION_PROPERTY));
+        pd.setLicense(Utilities.getLicenseByNameOrId(settings.getString(DependencyCheckMetrics.LIBRARY_GLOBAL_PROPERTY + "." + pd.getLicense() + "." + DependencyCheckMetrics.LIBRARY_LICENSE_PROPERTY), allowedLicenses));
+        
+        if (isNotEmpty(pd.getKey())) {
+            result.add(pd);
+          }
+    }
+    
     return result;
   }
 
@@ -144,32 +151,34 @@ public final class DependencyCheckDecorator implements Decorator {
    * @return a List of allowed Licenses for the Project - configurable in settings
    */
   private List<License> getAllowedLicenses() {
-    List<License> allowedLicenses = newArrayList();
-
-    String[] allowed = settings.getStringArray(DependencyCheckMetrics.LICENSE_PROPERTY);
-
-    for (String s : allowed) {
-      License l = new License();
-
-      String temp = DependencyCheckMetrics.LICENSE_PROPERTY.concat("." + s + ".");
-
-      l.setId(settings.getString(temp + DependencyCheckMetrics.LICENSE_ID_PROPERTY));
-      l.setTitle(settings.getString(temp + DependencyCheckMetrics.LICENSE_TITLE_PROPERTY));
-      l.setUrl(settings.getString(temp + DependencyCheckMetrics.LICENSE_URL_PROPERTY));
-      l.setDescription(settings.getString(temp + DependencyCheckMetrics.LICENSE_DESCRIPTION_PROPERTY));
-      l.setCommercial(settings.getBoolean(temp + DependencyCheckMetrics.LICENSE_COMMERCIAL_PROPERTY));
-
-      String sourceType = settings.getString(temp + DependencyCheckMetrics.LICENSE_SOURCETYPE_PROPERTY);
-      if (isNotEmpty(sourceType)) {
-        l.setSourceType(SourceType.valueOf(sourceType));
+      
+      LicenseWrapper allowedL=null;
+      
+      try{
+          allowedL= JaxbXmlHandler.unmarshalLicenseWrapper(new StringReader(settings.getString(DependencyCheckMetrics.LICENSE_PROPERTY))); 
       }
-      else {
-        l.setSourceType(SourceType.OPENSOURCE_COPYLEFT);
+      catch (JAXBException e){
+          e.printStackTrace();
       }
-      allowedLicenses.add(l);
+      for (License l : allowedL.getList())
+    {
+        l.setId(settings.getString("." + l.getId() + "." + DependencyCheckMetrics.LICENSE_ID_PROPERTY));
+        l.setTitle(settings.getString("." + l.getTitle() + "." + DependencyCheckMetrics.LICENSE_TITLE_PROPERTY));
+        l.setUrl(settings.getString("." + l.getUrl() + "." + DependencyCheckMetrics.LICENSE_URL_PROPERTY));
+        l.setDescription(settings.getString("." + l.getDescription() + "." + DependencyCheckMetrics.LICENSE_DESCRIPTION_PROPERTY));
+        l.setCommercial(settings.getBoolean("." + l.isCommercial() + "." + DependencyCheckMetrics.LICENSE_COMMERCIAL_PROPERTY));
+        
+        String sourceType= settings.getString("." + l.getSourceType() + DependencyCheckMetrics.LICENSE_SOURCETYPE_PROPERTY);
+        if(isNotEmpty(sourceType)) {
+            
+            l.setSourceType(SourceType.valueOf(sourceType));
+        }
+        else {
+            l.setSourceType(SourceType.OPENSOURCE_COPYLEFT);
+          }
     }
-
-    return allowedLicenses;
+      
+      return allowedL.getList();
   }
 
   /**

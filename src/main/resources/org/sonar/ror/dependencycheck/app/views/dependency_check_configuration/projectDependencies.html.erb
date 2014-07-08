@@ -1,0 +1,64 @@
+
+<h1 class="admin-page-title">Dependency Check Configuration</h1>
+	<br>
+	<ul class="tabs">
+    	<li>
+    		<a href="<%= ApplicationController.root_context -%>/dependency_check_configuration/index">GlobalDependencies</a>
+		</li>
+		<li>
+    		<a href="<%= ApplicationController.root_context -%>/dependency_check_configuration/licenses">Licenses</a>
+		</li>
+		<li>
+    		<a class="selected" href="<%= ApplicationController.root_context -%>/dependency_check_configuration/projectDependencies">ProjectDependencies</a>
+		</li>
+		<li>
+    		<a href="<%= ApplicationController.root_context -%>/dependency_check_configuration/scope">Scope</a>
+		</li>
+	</ul>
+	<br>
+	<table class="data" id="allowedLibraryTable">
+		<caption>This table shows all allowed project dependencies<%if @allowedProjectDependencies.blank?%>	
+		<b><%=" but currently there are no allowed libraries set"%></b>
+	<%end%>.</caption>
+		<thead>
+		  <tr>
+		    <th>Key</th>
+		    <th>Version Range</th>
+		    <th>License</th>
+		  </tr>
+		  
+		</thead>
+		
+		  <tbody>
+		 	<tr>
+			  <% form_tag :action => 'add' do %>
+			  <td><%= text_field_tag :key, nil, :placeholder=> 'groupID:artifactID'%></td>
+    		  <td><%= text_field_tag :version_range, nil, :placeholder=> 'in Maven syntax for versions'%></td>
+    		  <td><%= text_field_tag :license, nil, :placeholder=> 'full or shortage name'%></td>
+    		  <td><%= submit_tag "add it " %></td>
+			  <% end %>
+			</tr>
+			<%if !@allowedProjectDependencies.blank?%>
+			<%index = 0%>
+			<% @allowedProjectDependencies.elements.each('*/projectDependencies/dependency') do |e| %>	
+			  <%rowClass = ((index % 2) == 0) ? "even" : "odd"%> 
+			  <%index += 1 %>
+			  <tr class="<%=rowClass %>">	  
+			    <td><%= e.attributes['key'] %></td>
+			    <td><%= e.elements['versionRange']%></td>
+			    <td><%= e.elements['license'].attributes['id']%></td>
+			    <td>				
+			    	<a href="<%= ApplicationController.root_context -%>/dependency_check_configuration/delete?index=<%= index %>">
+						<button>delete</button>
+					</a></td>
+			  </tr>
+			<%end%>
+			<%end%>
+			
+			
+		  </tbody>
+		
+	</table>
+	
+	 
+	

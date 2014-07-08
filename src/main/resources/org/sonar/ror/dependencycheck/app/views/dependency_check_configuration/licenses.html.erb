@@ -1,0 +1,72 @@
+<h1 class="admin-page-title">Dependency Check Configuration</h1>
+	<br>
+	<ul class="tabs">
+    	<li>
+    		<a href="<%= ApplicationController.root_context -%>/dependency_check_configuration/index">GlobalDependencies</a>
+		</li>
+		<li>
+    		<a class="selected" href="<%= ApplicationController.root_context -%>/dependency_check_configuration/licenses">Licenses</a>
+		</li>
+		<li>
+    		<a href="<%= ApplicationController.root_context -%>/dependency_check_configuration/projectDependencies">ProjectDependencies</a>
+		</li>
+		<li>
+    		<a href="<%= ApplicationController.root_context -%>/dependency_check_configuration/scope">Scope</a>
+		</li>
+	</ul>
+	<br>
+	
+	<table class="data" id="allowedLibraryTable">
+		<caption>This table shows all allowed licenses<%if @allowedLicenses.blank?%>	
+		<b><%=" but currently there are no allowed licenses set"%></b>
+	<%end%>.</caption>
+		<thead>
+		  <tr>
+		    <th>Id</th>
+		    <th>Title</th>
+		    <th>Description</th>
+		    <th>URL</th>
+		    <th>Commercial</th>
+		    <th>Source Type</th>
+		  </tr>
+		  
+		</thead>
+		
+		  <tbody>
+		 	<tr>
+			  <% form_tag :action => 'addLicenses' do %>
+			  <td><%= text_field_tag :id, nil, :placeholder=> 'Shortage of the License title'%></td>
+    		  <td><%= text_field_tag :title, nil, :placeholder=> 'Title of the allowed license'%></td>
+    		  <td><%= text_field_tag :description, nil, :placeholder=> 'Description of the license'%></td>
+    		  <td><%= text_field_tag :url, nil, :placeholder=> 'For further information'%></td>
+    		  <td><%= select_tag :commercial, options_for_select([['true'],['false']])%></td>
+    		  <td><%= select_tag :sourceType, options_for_select([['CLOSED'],['OPENSOURCE_COPYLEFT'],['OPENSOURCE_NO_COPYLEFT']])%></td>
+    		  <td><%= submit_tag "add it " %></td>
+			  <% end %>
+			</tr>
+			<%if !@allowedLicenses.blank?%>
+			<%index = 0%>
+			<%=@allowedLicenses%>
+			<% @allowedLicenses.elements.each('*/licenses/license') do |e| %>	
+			  <%rowClass = ((index % 2) == 0) ? "even" : "odd"%> 
+			  <%index += 1 %>
+			  <tr class="<%=rowClass %>">	  
+			    <td><%= e.attributes['id'] %></td>
+			    <td><%= e.elements['title']%></td>
+			    <td><%= e.elements['description']%></td>
+			    <td><%= e.elements['url']%></td>
+			    <td><%= e.elements['commercial']%></td>
+			    <td><%= e.elements['sourceType']%></td>
+			    <td>				
+			    	<a href="<%= ApplicationController.root_context -%>/dependency_check_configuration/deleteLicenses?index=<%= index %>">
+						<button>delete</button>
+					</a>
+				</td>
+			  </tr>
+			<%end%>
+			<%end%>
+			
+			
+		  </tbody>
+		
+	</table>
