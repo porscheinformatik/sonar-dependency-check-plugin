@@ -17,10 +17,21 @@
  */
 package org.sonar.plugins.dependencycheck;
 
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlType;
+
 /**
  * This class stores a Dependency which is used by the plugin.
  */
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType
 public class ProjectDependency {
+  
+  @XmlAttribute
   private String key;
   private String versionRange;
   private License license;
@@ -70,5 +81,9 @@ public class ProjectDependency {
   public void setLicense(License license) {
     this.license = license;
   }
-
+  
+  @Override
+  public String toString() {
+      return "Dependency [key=" + key + ", versionRang=" + versionRange + ", license=" + license + "]";
+  }
 }

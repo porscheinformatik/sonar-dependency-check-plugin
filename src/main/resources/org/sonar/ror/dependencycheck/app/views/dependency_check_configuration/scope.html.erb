@@ -1,0 +1,71 @@
+
+<h1 class="admin-page-title">Dependency Check Configuration</h1>
+	<br>
+	<ul class="tabs">
+    	<li>
+    		<a href="<%= ApplicationController.root_context -%>/dependency_check_configuration/index">GlobalDependencies</a>
+		</li>
+		<li>
+    		<a href="<%= ApplicationController.root_context -%>/dependency_check_configuration/licenses">Licenses</a>
+		</li>
+		<li>
+    		<a href="<%= ApplicationController.root_context -%>/dependency_check_configuration/projectDependencies">ProjectDependencies</a>
+		</li>
+		<li>
+    		<a class="selected" href="<%= ApplicationController.root_context -%>/dependency_check_configuration/scope">Scope</a>
+		</li>
+	</ul>
+	<br>
+	<% form_tag :action => 'saveScope' do %>
+	<table class="marginbottom10">
+		<thead><tr>This table shows which scope should be checked.</tr></thead>
+		<tbody>
+			<tr id="block_dependencycheck.scope.compile" class="property">
+				<th>
+					<h3>Compile</h3>
+				</th>
+				<td>
+					<%= select_tag :compile, options_for_select([['true'],['false']])%>
+					<div class="note">Default: true</div>
+					<p class="marginbottom10">Whether dependencies of the scope compile should be checked.</p>
+					<div class="note">Key:&nbsp;dependencycheck.scope.compile</div>
+				</td>
+			</tr>
+			<tr id="block_dependencycheck.scope.provided" class="property">
+				<th>	
+					<h3>Provided</h3>
+				</th>
+				<td>
+					<%= select_tag :provided, options_for_select([['false'],['true']])%>
+					<div class="note">Default: false</div>
+					<p class="marginbottom10">Whether dependencies of the scope provided should be checked.</p>
+					<div class="note">Key:&nbsp;dependencycheck.scope.provided</div>
+				</td>
+			</tr>
+			<tr id="block_dependencycheck.scope.runtime" class="property">
+				<th>
+					<h3>Runtime</h3>
+				</th>
+				<td>
+					<%= select_tag :runtime, options_for_select([['true'],['false']])%>
+					<div class="note">Default: true</div>
+					<p class="marginbottom10">Whether dependencies of the scope runtime should be checked.</p>
+					<div class="note">Key:&nbsp;dependencycheck.scope.runtime</div>
+				</td>
+			</tr>
+			<tr id="block_dependencycheck.scope.test" class="property">
+				<th>
+					<h3>Test</h3>
+				</th>
+				<td>
+					<%= select_tag :test, options_for_select([['false'],['true']])%>
+					<div class="note">Default: false</div>
+					<p class="marginbottom10">Whether dependencies of the scope test should be checked.</p>
+					<div class="note">Key:&nbsp;dependencycheck.scope.test</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	
+	<%= submit_tag "Save Scope Settings" %>
+	<% end %>
