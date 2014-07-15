@@ -173,7 +173,7 @@ public final class DependencyCheckPlugin extends SonarPlugin {
         .onQualifiers(Qualifiers.PROJECT)
         .build());
 
-    extensions.add(DependencyCheckRuleRepository.class);
+    extensions.add(DependencyCheckRulesDefinition.class);
     extensions.add(DependencyCheckMetrics.class);
     extensions.add(DependencyCheckDecorator.class);
     extensions.add(DependencyCheckPage.class);

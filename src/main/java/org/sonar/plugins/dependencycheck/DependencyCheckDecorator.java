@@ -192,7 +192,7 @@ public final class DependencyCheckDecorator implements Decorator {
 
       allDependencies.add(d.getTo().getKey() + "~" + "no license information" + "~" + "UNLISTED");
 
-      Issuable issuable = perspectives.as(Issuable.class, (Resource<?>) project);
+      Issuable issuable = perspectives.as(Issuable.class, (Resource) project);
       if (issuable != null) {
         Issue issue = issuable.newIssueBuilder()
             .ruleKey(RuleKey.of(DependencyCheckMetrics.DEPENDENCY_CHECK_KEY,
@@ -210,7 +210,7 @@ public final class DependencyCheckDecorator implements Decorator {
       License l = Utilities.getLicense(d, allowedProjectDependencies);
       allLicenses.add(l.getTitle() + "~" + l.getUrl());
 
-      Issuable issuable = perspectives.as(Issuable.class, (Resource<?>) project);
+      Issuable issuable = perspectives.as(Issuable.class, (Resource) project);
       if (issuable != null) {
         Issue issue =
             issuable
@@ -239,7 +239,7 @@ public final class DependencyCheckDecorator implements Decorator {
   /**
    * {@inheritDoc}
    */
-  public void decorate(@SuppressWarnings("rawtypes") Resource resource, DecoratorContext context) {
+  public void decorate(Resource resource, DecoratorContext context) {
     if (!(ResourceUtils.isProject(resource) || ResourceUtils.isModuleProject(resource))) {
       return;
     }
