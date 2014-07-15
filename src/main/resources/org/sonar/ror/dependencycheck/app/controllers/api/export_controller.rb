@@ -17,7 +17,7 @@ class Api::ExportController < Api::ApiController
     metricId = Metric.by_name('dependencycheck.dependency').id
     depMeasure = ProjectMeasure.first(:include => ['measure_data'], :conditions => ['snapshot_id=? AND metric_id=?', project_sid, metricId])
     checkedDependencies = depMeasure.data.split(';')
-    @entries = []
+    entries = []
     dependencies.each do |dep|
       license = ""
       status = ""
@@ -29,9 +29,11 @@ class Api::ExportController < Api::ApiController
         end
       end
       if status!=''
-        @entries.push([dep.to.name, dep.to_snapshot.version, license, status])
+        entries.push([dep.to.name, dep.to_snapshot.version, license, status])
       end
     end
+
+    @entries = entries.uniq
     @filename=Project.find(params[:id]).name
 
     render :template => 'export/to_csv', :layout => false
