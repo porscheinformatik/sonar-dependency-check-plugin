@@ -42,7 +42,7 @@ public class DependencyCheckPage extends AbstractRubyTemplate implements RubyRai
 
   @Override
   protected String getTemplatePath() {
-    return "D:/workspace/sonar-dependency-check-plugin/src/main/resources/org/sonar/plugins/dependencycheck/DependencyCheckPage.html.erb";//"/org/sonar/plugins/dependencycheck/DependencyCheckPage.html.erb";
+    return "/org/sonar/plugins/dependencycheck/DependencyCheckPage.html.erb";
   }
 
 }

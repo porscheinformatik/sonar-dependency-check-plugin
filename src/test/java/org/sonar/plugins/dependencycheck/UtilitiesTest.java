@@ -17,21 +17,19 @@
  */
 package org.sonar.plugins.dependencycheck;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.*;
-
 /**
  * Unit tests for Utilities class
- *
- * @author YKM
- *
  */
 public class UtilitiesTest {
 

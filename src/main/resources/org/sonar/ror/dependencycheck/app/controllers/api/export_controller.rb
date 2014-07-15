@@ -13,11 +13,7 @@ class Api::ExportController < Api::ApiController
     else
         dependencies = Dependency.find(:all, :include => ['to','to_snapshot'], :conditions => ["project_snapshot_id=? and (from_scope in (?) or to_scope in (?))", project_sid, scopes, scopes], :order => "projects.kee")
     end
-  
-  
-  #<!--Laedt die Projects und Versions aus der Dependency Check Page-->
-   
-    
+
     metricId = Metric.by_name('dependencycheck.dependency').id
     depMeasure = ProjectMeasure.first(:include => ['measure_data'], :conditions => ['snapshot_id=? AND metric_id=?', project_sid, metricId])
     checkedDependencies = depMeasure.data.split(';')
