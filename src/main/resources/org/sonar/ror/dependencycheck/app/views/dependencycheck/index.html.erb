@@ -1,0 +1,89 @@
+<div class="page">
+    <h1>Dependency Check</h1>
+    <div class="line-block">
+      <ul class="operations">
+        <li>
+          <a class="csv" href="export_csv/<%=@snapshot.project_id%>" id="export-csv-link">Export CSV</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="line-block">
+        <h2>Dependencies</h2>
+    </div>
+
+    <table class="data width100" id="libraryTable">
+        <caption>This table shows all dependencies of this project (or module) and their dependency check status.
+            For root projects all dependencies of all child projects are shown.</caption>
+        <thead>
+            <tr>
+                <th>Library</th>
+                <th>Usage</th>
+                <th>Version</th>
+                <th>License</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <%
+            index = 1
+            @entries.each do |row| 
+                rowClass = ((index % 2) == 0) ? "even" : "odd" 
+                index += 1
+            %>
+            <tr class="<%=rowClass%> hoverable">
+                <td><%= row[0] %></td>
+                <td><%= row[1] %></td>
+                <td><%= row[2] %></td>
+                <td><%= row[3] %></td>
+                <td>
+                    <%
+                    status = case row[4]
+                                when 'OK'
+                                    image_tag('/images/levels/ok.png', :alt => 'OK')
+                                when 'UNLISTED', 'Unlisted'
+                                    image_tag('/images/levels/error.png', :alt => 'Unlisted dependency')
+                                when 'WRONG_VERSION', 'Wrong Version'
+                                    image_tag('/images/levels/warn.png', :alt => 'Wrong version')
+                                else
+                                    'Unknown status'
+                            end
+                    %>
+                    <%= status %>
+                </td>
+            </tr>
+            <%
+            end
+            %>
+        </tbody>
+    </table>
+    <br>
+    <div class="line-block">
+        <h2>Licenses</h2>
+    </div>
+    <table class="data" id="libraryTable">
+        <caption>This table shows all used licenses for the current project (or module).</caption>
+        <thead>
+            <tr>
+                <th>License</th>
+                <th>URL</th>
+            </tr>
+        </thead>
+        <tbody>
+            <%
+            index = 1;
+            @licenses.each do |license|
+                rowClass = ((index % 2) == 0) ? "even" : "odd"
+                index += 1
+                l = license.split('~')
+            %>
+                <tr class="<%=rowClass%> hoverable">
+                    <td><%=l[0]%></td>
+                    <td><a href="<%=l[1]%>"> <%=l[1]%></a></td>
+                </tr>
+            <%
+            end
+            %>
+        </tbody>
+    </table>
+</div>

@@ -18,11 +18,10 @@
 package org.sonar.plugins.dependencycheck;
 
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.NavigationSection;
+import org.sonar.api.web.Page;
 import org.sonar.api.web.RequiredMeasures;
 import org.sonar.api.web.ResourceQualifier;
-import org.sonar.api.web.RubyRailsPage;
 
 /**
  * Page showing the dependency check result.
@@ -30,19 +29,13 @@ import org.sonar.api.web.RubyRailsPage;
 @RequiredMeasures(allOf = {DependencyCheckMetrics.DEPENDENCY_CHECK_DEPENDENCY_KEY, DependencyCheckMetrics.DEPENDENCY_CHECK_LICENSE_KEY})
 @ResourceQualifier({Qualifiers.PROJECT, Qualifiers.MODULE})
 @NavigationSection({NavigationSection.RESOURCE})
-public class DependencyCheckPage extends AbstractRubyTemplate implements RubyRailsPage {
+public class DependencyCheckPage implements Page {
 
   public String getId() {
-    return "org.sonar.plugins.dependencycheck.libraries";
+    return "/dependencycheck/index";
   }
 
   public String getTitle() {
     return "Dependency Check";
   }
-
-  @Override
-  protected String getTemplatePath() {
-    return "/org/sonar/plugins/dependencycheck/DependencyCheckPage.html.erb";
-  }
-
 }

@@ -1,6 +1,6 @@
 <%
  response.headers['Content-Type'] = "'text/csv; charset=iso-8859-1'"
- response.headers['Content-Disposition'] = 'attachment; filename="Dependency Check - '+ @filename + '.csv"'
+ response.headers['Content-Disposition'] = 'attachment; filename="' + @filename + '"'
 %>Library;Version;License;Status
 <% @entries.each do |row| %><% row.each do |col| %>"<%= col %>";<% end %>
 <% end %>
