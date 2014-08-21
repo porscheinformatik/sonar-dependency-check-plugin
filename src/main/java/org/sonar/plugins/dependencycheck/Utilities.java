@@ -331,7 +331,7 @@ public final class Utilities {
   private static ProjectDependency searchForProjectDependency(Dependency d,
       List<ProjectDependency> allowedProjectDependencies) {
     for (ProjectDependency projectDependency : allowedProjectDependencies) {
-      if (d.getTo().getKey().toString().contains(projectDependency.getKey())) {
+      if (d.getTo().getKey().toString().startsWith(projectDependency.getKey())) {
         return projectDependency;
       }
     }
