@@ -18,12 +18,12 @@
 package org.sonar.plugins.dependencycheck;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.collect.Sets.newTreeSet;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -43,6 +43,9 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rule.RuleKey;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 /**
  * This class creates Issues and Measures for the analyzed project.
@@ -178,36 +181,39 @@ public final class DependencyCheckDecorator implements Decorator {
    *
    * @param project - the current Project
    * @param context
-   * @param d - currently handled dependency
+   * @param dependency the currently handled dependency
    * @param sbDependencies - StringBuffer for dependencies
    * @param sbLicenses - StringBuffer for licenses
    * @param allowedProjectDependencies - list of the allowed dependencies
    */
-  private void checkDependency(Project project, Dependency d, Set<String> allDependencies,
+  private void checkDependency(Project project, Resource dependency, Set<String> allDependencies,
       Set<String> allLicenses, List<ProjectDependency> allowedProjectDependencies) {
 
-    LOGGER.debug("Checking dependency: {}", d);
+    final String dependencyKey = dependency.getKey();
+    final String dependencyVersion = ((Library) dependency).getVersion();
 
-    if (!Utilities.dependencyInList(d, allowedProjectDependencies)) {
+    LOGGER.debug("Checking dependency: {}", dependencyKey);
 
-      allDependencies.add(d.getTo().getKey() + "~" + "no license information" + "~" + "UNLISTED");
+    if (!Utilities.dependencyInList(dependencyKey, allowedProjectDependencies)) {
+
+      allDependencies.add(dependencyKey + "~" + "no license information" + "~" + "UNLISTED");
 
       Issuable issuable = perspectives.as(Issuable.class, (Resource) project);
       if (issuable != null) {
         Issue issue = issuable.newIssueBuilder()
             .ruleKey(RuleKey.of(DependencyCheckMetrics.DEPENDENCY_CHECK_KEY,
                 DependencyCheckMetrics.DEPENDENCY_CHECK_UNLISTED_KEY))
-            .message("Dependency: " + d.getTo().getKey() + " is not listed!")
+            .message("Dependency: " + dependencyKey + " is not listed!")
             .build();
         issuable.addIssue(issue);
       }
-
     }
-    else if (!Utilities.dependencyInVersionRange(d, allowedProjectDependencies)) {
 
-      allDependencies.add(d.getTo().getKey() + "~" + Utilities.getLicenseName(d, allowedProjectDependencies) + "~" + "WRONG_VERSION");
+    else if (!Utilities.dependencyInVersionRange(dependencyKey, dependencyVersion, allowedProjectDependencies)) {
 
-      License l = Utilities.getLicense(d, allowedProjectDependencies);
+      allDependencies.add(dependencyKey + "~" + Utilities.getLicenseName(dependencyKey, allowedProjectDependencies) + "~" + "WRONG_VERSION");
+
+      License l = Utilities.getLicense(dependencyKey, allowedProjectDependencies);
       allLicenses.add(l.getTitle() + "~" + l.getUrl());
 
       Issuable issuable = perspectives.as(Issuable.class, (Resource) project);
@@ -218,19 +224,18 @@ public final class DependencyCheckDecorator implements Decorator {
                 .ruleKey(RuleKey.of(DependencyCheckMetrics.DEPENDENCY_CHECK_KEY,
                     DependencyCheckMetrics.DEPENDENCY_CHECK_WRONG_VERSION_KEY))
                 .message(
-                    "Dependency: " + d.getTo().getKey() + " with version: "
-                      + ((Library) d.getTo()).getVersion()
+                    "Dependency: " + dependencyKey + " with version: " + dependencyVersion
                       + " is out of the accepted version range! Accepted version Range: "
-                      + Utilities.getDependencyVersionRange(d, allowedProjectDependencies))
+                      + Utilities.getDependencyVersionRange(dependency, allowedProjectDependencies))
                 .build();
         issuable.addIssue(issue);
       }
     }
     else {
 
-      allDependencies.add(d.getTo().getKey() + "~" + Utilities.getLicenseName(d, allowedProjectDependencies) + "~" + "OK");
+      allDependencies.add(dependencyKey + "~" + Utilities.getLicenseName(dependencyKey, allowedProjectDependencies) + "~" + "OK");
 
-      License l = Utilities.getLicense(d, allowedProjectDependencies);
+      License l = Utilities.getLicense(dependencyKey, allowedProjectDependencies);
 
       allLicenses.add(l.getTitle() + "~" + l.getUrl());
     }
@@ -246,7 +251,6 @@ public final class DependencyCheckDecorator implements Decorator {
 
     SortedSet<String> lincenseAnalysisResult = newTreeSet();
     SortedSet<String> dependencyAnalysisResult = newTreeSet();
-    Set<String> handledToKeys = newHashSet();
 
     // resource has to be a project here
     Project project = (Project) resource;
@@ -254,23 +258,44 @@ public final class DependencyCheckDecorator implements Decorator {
     LOGGER.debug("Dependency check for project: {}", project);
 
     List<ProjectDependency> allowedProjectDependencies = getAllowedProjectDependencies();
-    List<String> allowedScopes = getAllowedScopes();
 
-    Collection<Dependency> dependencies = context.getOutgoingDependencies();
-    LOGGER.debug("Got dependencies: {}", dependencies);
-
-    for (Dependency d : dependencies) {
-      if (ResourceUtils.isLibrary(d.getTo()) // only include libraries
-        && !handledToKeys.contains(d.getTo().getKey())
-        && Utilities.inCheckScope(d, allowedScopes)) {
-
-        checkDependency(project, d, dependencyAnalysisResult, lincenseAnalysisResult, allowedProjectDependencies);
-
-        handledToKeys.add(d.getTo().getKey());
-      }
+    for (Resource dependency : findTransitiveDependencies(resource.getKey(), buildDependencyTree(context.getDependencies()))) {
+        checkDependency(project, dependency, dependencyAnalysisResult, lincenseAnalysisResult, allowedProjectDependencies);
     }
 
     saveProjectMeasures(context, lincenseAnalysisResult, dependencyAnalysisResult);
+  }
+
+  private Multimap<String, Dependency> buildDependencyTree(Set<Dependency> dependencies) {
+    LOGGER.debug("Got dependencies: {}", dependencies);
+
+    Multimap<String, Dependency> dependencyTree = ArrayListMultimap.create(); 
+    for (Dependency d : dependencies) {
+      if (ResourceUtils.isLibrary(d.getTo()) // only include libraries
+        && Utilities.inCheckScope(d, getAllowedScopes())) {
+        dependencyTree.put(d.getFrom().getKey(), d);
+      }
+    }
+    return dependencyTree;
+  }
+
+  /**
+   * Finds the transtivie dependencies of the key in the dependencyTree.
+   * @param fromKey the key to search for
+   * @param dependencyTree the tree with all dependencies
+   * @return a set of all dependencies (incl. transitive)
+   */
+  private static Set<Resource> findTransitiveDependencies(String fromKey, Multimap<String, Dependency> dependencyTree) {
+    Set<Resource> actualDependencies = new HashSet<Resource>();
+    doFindTransitiveDependencies(fromKey, dependencyTree, actualDependencies);
+    return actualDependencies;
+  }
+
+  private static void doFindTransitiveDependencies(String fromKey, Multimap<String, Dependency> dependencyTree, Set<Resource> actualDependencies) {
+    for (Dependency dependency : dependencyTree.get(fromKey)) {
+      actualDependencies.add(dependency.getTo());
+      doFindTransitiveDependencies(dependency.getTo().getKey(), dependencyTree, actualDependencies);
+    }
   }
 
   /**
@@ -279,7 +304,7 @@ public final class DependencyCheckDecorator implements Decorator {
    * @param lincenseAnalysisResult .
    * @param dependencyAnalysisResult .
    */
-  private void saveProjectMeasures(DecoratorContext context, SortedSet<String> lincenseAnalysisResult, SortedSet<String> dependencyAnalysisResult) {
+  private static void saveProjectMeasures(DecoratorContext context, SortedSet<String> lincenseAnalysisResult, SortedSet<String> dependencyAnalysisResult) {
 
     Collection<Measure> dependencyMeasures = context.getChildrenMeasures(DependencyCheckMetrics.DEPENDENCY);
     if (dependencyMeasures != null) {

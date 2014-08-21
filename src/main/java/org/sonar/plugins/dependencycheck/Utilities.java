@@ -23,8 +23,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.sonar.api.design.Dependency;
-import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 
 /**
@@ -67,12 +67,12 @@ public final class Utilities {
   /**
    * Searches through the list of allowed dependencies.
    *
-   * @param d - currently handled dependency
+   * @param dependencyKey the key of the currently handled dependency
    * @param allowedProjectDependencies - list of allowed dependencies
    * @return true if the dependency is in the allowed list
    */
-  static boolean dependencyInList(Dependency d, List<ProjectDependency> allowedProjectDependencies) {
-    ProjectDependency pd = searchForProjectDependency(d, allowedProjectDependencies);
+  static boolean dependencyInList(String dependencyKey, List<ProjectDependency> allowedProjectDependencies) {
+    ProjectDependency pd = searchForProjectDependency(dependencyKey, allowedProjectDependencies);
 
     return pd != null ? true : false;
   }
@@ -80,13 +80,14 @@ public final class Utilities {
   /**
    * searches for the currently handled dependency and checks if it is in the allowed version range (true)
    *
-   * @param d - currently handled dependency
+   * @param dependencyKey key of the dependency
+   * @param dependencyVersion version of the dependency
    * @param allowedProjectDependencies - list of available dependencies
    * @return dependency in version range
    */
-  static boolean dependencyInVersionRange(Dependency d, List<ProjectDependency> allowedProjectDependencies) {
-    ProjectDependency pd = searchForProjectDependency(d, allowedProjectDependencies);
-    return pd != null ? versionAllowed(((Library) d.getTo()).getVersion(), pd.getVersionRange()) : false;
+  static boolean dependencyInVersionRange(String dependencyKey, String dependencyVersion, List<ProjectDependency> allowedProjectDependencies) {
+    ProjectDependency pd = searchForProjectDependency(dependencyKey, allowedProjectDependencies);
+    return pd != null ? versionAllowed(dependencyVersion, pd.getVersionRange()) : false;
   }
 
   /**
@@ -286,24 +287,24 @@ public final class Utilities {
   /**
    * Searches the name (title) of the license of the dependency.
    *
-   * @param d - used dependency
+   * @param dependencyKey key of the used dependency
    * @param allowedProjectDependencies - list of allowed dependencies
    * @return name of the license or a empty String if nothing has been found
    */
-  static String getLicenseName(Dependency d, List<ProjectDependency> allowedProjectDependencies) {
-    ProjectDependency pd = searchForProjectDependency(d, allowedProjectDependencies);
+  static String getLicenseName(String dependencyKey, List<ProjectDependency> allowedProjectDependencies) {
+    ProjectDependency pd = searchForProjectDependency(dependencyKey, allowedProjectDependencies);
     return pd != null ? pd.getLicense().getTitle() : "";
   }
 
   /**
    * Searches the license of the used dependency.
    *
-   * @param d - used dependency
+   * @param dependencyKey key of the used dependency
    * @param allowedProjectDependencies - allowed dependencies
    * @return the found license or null if nothing has been found
    */
-  static License getLicense(Dependency d, List<ProjectDependency> allowedProjectDependencies) {
-    ProjectDependency pd = searchForProjectDependency(d, allowedProjectDependencies);
+  static License getLicense(String dependencyKey, List<ProjectDependency> allowedProjectDependencies) {
+    ProjectDependency pd = searchForProjectDependency(dependencyKey, allowedProjectDependencies);
 
     return pd != null ? pd.getLicense() : null;
 
@@ -312,26 +313,25 @@ public final class Utilities {
   /**
    * Searches for a dependency in a list of allowed dependencies.
    *
-   * @param d - currently handled dependency
+   * @param dependency currently handled dependency
    * @param allowedProjectDependencies - list of allowed dependencies
    * @return version range of the found dependency or an empty string
    */
-  static String getDependencyVersionRange(Dependency d, List<ProjectDependency> allowedProjectDependencies) {
-    ProjectDependency pd = searchForProjectDependency(d, allowedProjectDependencies);
+  static String getDependencyVersionRange(Resource dependency, List<ProjectDependency> allowedProjectDependencies) {
+    ProjectDependency pd = searchForProjectDependency(dependency.getKey(), allowedProjectDependencies);
     return pd != null ? pd.getVersionRange() : "";
   }
 
   /**
    * Searches for a project dependency in the list of the allowed dependency.
    *
-   * @param d - currently handled dependency
+   * @param dependencyKey the key of the currently handled dependency
    * @param allowedProjectDependencies - list of allowed dependencies
    * @return found project dependency
    */
-  private static ProjectDependency searchForProjectDependency(Dependency d,
-      List<ProjectDependency> allowedProjectDependencies) {
+  private static ProjectDependency searchForProjectDependency(String dependencyKey, List<ProjectDependency> allowedProjectDependencies) {
     for (ProjectDependency projectDependency : allowedProjectDependencies) {
-      if (d.getTo().getKey().toString().startsWith(projectDependency.getKey())) {
+      if (dependencyKey.startsWith(projectDependency.getKey())) {
         return projectDependency;
       }
     }
