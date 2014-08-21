@@ -256,18 +256,18 @@ public final class DependencyCheckDecorator implements Decorator {
     List<ProjectDependency> allowedProjectDependencies = getAllowedProjectDependencies();
     List<String> allowedScopes = getAllowedScopes();
 
-    Collection<Dependency> dependencies = context.getDependencies();
+    Collection<Dependency> dependencies = context.getOutgoingDependencies();
     LOGGER.debug("Got dependencies: {}", dependencies);
 
     for (Dependency d : dependencies) {
-        if (ResourceUtils.isLibrary(d.getTo()) // only include libraries
-            && !handledToKeys.contains(d.getTo().getKey())
-            && Utilities.inCheckScope(d, allowedScopes)) {
-            
-            checkDependency(project, d, dependencyAnalysisResult, lincenseAnalysisResult, allowedProjectDependencies);
-            
-            handledToKeys.add(d.getTo().getKey());
-        }
+      if (ResourceUtils.isLibrary(d.getTo()) // only include libraries
+        && !handledToKeys.contains(d.getTo().getKey())
+        && Utilities.inCheckScope(d, allowedScopes)) {
+
+        checkDependency(project, d, dependencyAnalysisResult, lincenseAnalysisResult, allowedProjectDependencies);
+
+        handledToKeys.add(d.getTo().getKey());
+      }
     }
 
     saveProjectMeasures(context, lincenseAnalysisResult, dependencyAnalysisResult);
