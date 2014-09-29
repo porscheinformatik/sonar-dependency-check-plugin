@@ -17,31 +17,37 @@
  */
 package org.sonar.plugins.dependencycheck;
 
+import javax.xml.bind.annotation.XmlElement;
+
 /**
  * This class stores a Dependency which is used by the plugin.
  */
-public class ProjectDependency {
+public class AllowedDependency {
+  @XmlElement
   private String key;
+  @XmlElement
   private String versionRange;
+  @XmlElement
+  private String licenseId;
   private License license;
 
   /**
-   * Standard constructor for a {@link ProjectDependency} - initializes everything as empty string or null.
+   * Standard constructor for a {@link AllowedDependency} - initializes everything as empty string or null.
    */
-  public ProjectDependency() {
+  public AllowedDependency() {
     this.key = "";
     this.versionRange = "";
     this.license = null;
   }
 
   /**
-   * Constructor for a {@link ProjectDependency}
+   * Constructor for a {@link AllowedDependency}
    * 
    * @param title - title of the dependency
    * @param versionRange - version range of the dependency
    * @param license - license of the dependency
    */
-  public ProjectDependency(String title, String versionRange, License license) {
+  public AllowedDependency(String title, String versionRange, License license) {
     this.key = title;
     this.versionRange = versionRange;
     this.license = license;
@@ -51,16 +57,12 @@ public class ProjectDependency {
     return versionRange;
   }
 
-  public void setVersionRange(String versionRange) {
-    this.versionRange = versionRange != null ? versionRange : "";
-  }
-
   public String getKey() {
     return key;
   }
 
-  public void setKey(String key) {
-    this.key = key;
+  public String getLicenseId() {
+    return licenseId;
   }
 
   public License getLicense() {
@@ -70,5 +72,4 @@ public class ProjectDependency {
   public void setLicense(License license) {
     this.license = license;
   }
-
 }

@@ -1,0 +1,12 @@
+<allowed-dependencies>
+    <dependency>
+        <key>ch.qos.logback:logback</key>
+        <versionRange>0.0</versionRange>
+        <licenseId>EPL-1.0</licenseId>
+    </dependency>
+    <dependency>
+        <key>org.springframework.security:spring-security-</key>
+        <versionRange>[3.1.7.RELEASE],[3.2.5.RELEASE,)</versionRange>
+        <licenseId>Apache-2.0</licenseId>
+    </dependency>
+</allowed-dependencies>

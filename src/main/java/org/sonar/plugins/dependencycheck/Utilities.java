@@ -33,13 +33,7 @@ import org.sonar.api.resources.ResourceUtils;
 public final class Utilities {
   private static final String EVERY_VERSION_ALLOWED = "[^\\Q([])\\E]*";
   private static final String SPLIT_BY_DOT = "\\.";
-  private static final License NO_LICENSE = new License();
-  static {
-    NO_LICENSE.setTitle("No License found");
-    NO_LICENSE.setCommercial(false);
-    NO_LICENSE.setUrl("");
-    NO_LICENSE.setSourceType(SourceType.CLOSED);
-  }
+  private static final License NO_LICENSE = new License("", "No License found", "", "", SourceType.CLOSED, false);
 
   private Utilities() {
   }
@@ -71,8 +65,8 @@ public final class Utilities {
    * @param allowedProjectDependencies - list of allowed dependencies
    * @return true if the dependency is in the allowed list
    */
-  static boolean dependencyInList(String dependencyKey, List<ProjectDependency> allowedProjectDependencies) {
-    ProjectDependency pd = searchForProjectDependency(dependencyKey, allowedProjectDependencies);
+  static boolean dependencyInList(String dependencyKey, List<AllowedDependency> allowedProjectDependencies) {
+    AllowedDependency pd = searchForProjectDependency(dependencyKey, allowedProjectDependencies);
 
     return pd != null ? true : false;
   }
@@ -85,8 +79,8 @@ public final class Utilities {
    * @param allowedProjectDependencies - list of available dependencies
    * @return dependency in version range
    */
-  static boolean dependencyInVersionRange(String dependencyKey, String dependencyVersion, List<ProjectDependency> allowedProjectDependencies) {
-    ProjectDependency pd = searchForProjectDependency(dependencyKey, allowedProjectDependencies);
+  static boolean dependencyInVersionRange(String dependencyKey, String dependencyVersion, List<AllowedDependency> allowedProjectDependencies) {
+    AllowedDependency pd = searchForProjectDependency(dependencyKey, allowedProjectDependencies);
     return pd != null ? versionAllowed(dependencyVersion, pd.getVersionRange()) : false;
   }
 
@@ -291,9 +285,9 @@ public final class Utilities {
    * @param allowedProjectDependencies - list of allowed dependencies
    * @return name of the license or a empty String if nothing has been found
    */
-  static String getLicenseName(String dependencyKey, List<ProjectDependency> allowedProjectDependencies) {
-    ProjectDependency pd = searchForProjectDependency(dependencyKey, allowedProjectDependencies);
-    return pd != null ? pd.getLicense().getTitle() : "";
+  static String getLicenseName(String dependencyKey, List<AllowedDependency> allowedProjectDependencies) {
+    AllowedDependency pd = searchForProjectDependency(dependencyKey, allowedProjectDependencies);
+    return pd != null && pd.getLicense() != null ? pd.getLicense().getTitle() : "";
   }
 
   /**
@@ -303,8 +297,8 @@ public final class Utilities {
    * @param allowedProjectDependencies - allowed dependencies
    * @return the found license or null if nothing has been found
    */
-  static License getLicense(String dependencyKey, List<ProjectDependency> allowedProjectDependencies) {
-    ProjectDependency pd = searchForProjectDependency(dependencyKey, allowedProjectDependencies);
+  static License getLicense(String dependencyKey, List<AllowedDependency> allowedProjectDependencies) {
+    AllowedDependency pd = searchForProjectDependency(dependencyKey, allowedProjectDependencies);
 
     return pd != null ? pd.getLicense() : null;
 
@@ -317,8 +311,8 @@ public final class Utilities {
    * @param allowedProjectDependencies - list of allowed dependencies
    * @return version range of the found dependency or an empty string
    */
-  static String getDependencyVersionRange(Resource dependency, List<ProjectDependency> allowedProjectDependencies) {
-    ProjectDependency pd = searchForProjectDependency(dependency.getKey(), allowedProjectDependencies);
+  static String getDependencyVersionRange(Resource dependency, List<AllowedDependency> allowedProjectDependencies) {
+    AllowedDependency pd = searchForProjectDependency(dependency.getKey(), allowedProjectDependencies);
     return pd != null ? pd.getVersionRange() : "";
   }
 
@@ -329,8 +323,8 @@ public final class Utilities {
    * @param allowedProjectDependencies - list of allowed dependencies
    * @return found project dependency
    */
-  private static ProjectDependency searchForProjectDependency(String dependencyKey, List<ProjectDependency> allowedProjectDependencies) {
-    for (ProjectDependency projectDependency : allowedProjectDependencies) {
+  private static AllowedDependency searchForProjectDependency(String dependencyKey, List<AllowedDependency> allowedProjectDependencies) {
+    for (AllowedDependency projectDependency : allowedProjectDependencies) {
       if (dependencyKey.startsWith(projectDependency.getKey())) {
         return projectDependency;
       }

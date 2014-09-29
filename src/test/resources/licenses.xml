@@ -1,0 +1,102 @@
+<licenses>
+    <license>
+        <id>Apache-2.0</id>
+        <title>Apache License, Version 2.0</title>
+        <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+        <commercial>false</commercial>
+        <sourceType>OPENSOURCE_NO_COPYLEFT</sourceType>
+    </license>
+    <license>
+        <id>GLUE-STD</id>
+        <title>Glue Standard License</title>
+        <description><![CDATA[TERMS AND CONDITIONS FOR GLUE STANDARD LICENSE
+
+Use of GLUE Standard is provided only under license from 
+The Mind Electric. Please read the following license carefully.
+
+1. Ownership and License
+
+GLUE Standard is owned by The Mind Electric and is copyrighted
+and licensed, not sold. The Mind Electric grants you a non-exclusive,
+non-transferable license to use and distribute GLUE Standard 
+in binary form as long as all of the following conditions are met:
+
+  - You are not bundling GLUE Standard or a derivative of it
+    as part of a software development environment such as
+    JBuilder, WebGain or VisualAge. Note that this restriction is
+    targeted at IDE vendors, and does not prevent developers
+    from loading GLUE Standard into an IDE and using it during
+    everyday development.
+
+  - You are not integrating GLUE Standard or a derivative of it
+    into a software infrastructure platform such as WebLogic, 
+    Apache SOAP, WebSphere, Oracle application server,
+    or HP e-speak. Note that this restriction is targeted at
+    software infrastructure vendors, and does not prevent developers
+    from using and bundling GLUE Standard with applications that run
+    on these platforms.
+
+  - You are not deploying GLUE Standard or a derivative of it
+    on a device which is not a standard PC or server. Examples
+    of such devices include cell phones, PDAs, cars, factory
+    controllers, routers and printers.
+
+  - You must not remove any of the copyright information from the
+    GLUE Standard documentation.
+
+If you cannot meet all of these conditions, please contact us
+to arrange a special custom license.
+
+2. Restrictions on Use
+
+Regardless of how the software is being used, you may not reverse
+engineer, decompile, disassemble or otherwise attempt to determine
+source code from the software.
+
+3. Term and Termination
+
+This Agreement is effective until terminated. You may terminate this
+Agreement at any time by destroying all copies of GLUE Standard .
+This Agreement will terminate immediately without notice from
+The Mind Electric if you fail to comply with any provision of this
+Agreement. Upon termination, you must destroy all copies of GLUE Standard .
+
+4. Warranty Disclaimer and Limitation of Liability
+
+The Mind Electric licenses the Software to you on an "as is" basis, without
+warranty of any kind. The Mind Electric hereby expressly disclaims all warranties
+or conditions, either express or implied, including, but not limited to, the
+implied warranties or conditions of merchantability and fitness for a particular
+purpose. You are solely responsible for determining the appropriateness of using
+GLUE Standard and assume all risks associated with the use of it, including but not
+limited to the risks of program errors, damage to or loss of data, programs or
+equipment, and unavailability or interruption of operations. Some jurisdictions
+do not allow for the exclusion or limitation of implied warranties, so the above
+limitations or exclusions may not apply to you.
+
+The Mind Electric will not be liable for any direct damages or for any special,
+incidental, or indirect damages or for any economic consequential
+damages (including lost profits or savings), even if The Mind Electric has been
+advised of the possibility of such damages. The Mind Electric will not be liable
+for the loss of, or damage to, your records or data, or any damages claimed by
+you based on a third party claim. Some jurisdictions do not allow for the
+exclusion or limitation of incidental or consequential damages, so the
+above limitations or exclusions may not apply to you.
+
+5. General
+
+This Agreement is governed by the laws of the State of Texas.
+This Agreement is the only understanding and agreement we have regarding
+your use of GLUE Standard . It supersedes all other communications,
+understandings or agreements we may have had prior to this Agreement.]]></description>
+        <url>http://www.guibuilder.de/license/glue/GLUE-STD-license.html</url>
+        <commercial>false</commercial>
+        <sourceType>OPENSOURCE_NO_COPYLEFT</sourceType>
+    </license>
+    <license>
+        <id>Oracle</id>
+        <title>Oracle License</title>
+        <commercial>true</commercial>
+        <sourceType>CLOSED</sourceType>
+    </license>
+</licenses>

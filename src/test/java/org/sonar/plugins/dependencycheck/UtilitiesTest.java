@@ -35,8 +35,8 @@ public class UtilitiesTest {
    */
   @Test
   public void dependencyInListTest() {
-    List<ProjectDependency> allowedProjectDependencies = new ArrayList<ProjectDependency>();
-    allowedProjectDependencies.add(new ProjectDependency("test.to.key", "1.2.3", null));
+    List<AllowedDependency> allowedProjectDependencies = new ArrayList<AllowedDependency>();
+    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "1.2.3", null));
 
     assertTrue(Utilities.dependencyInList("test.to.key", allowedProjectDependencies));
   }
@@ -47,13 +47,13 @@ public class UtilitiesTest {
    */
   @Test
   public void dependencyVersionRangeAllVersionsTest() {
-    List<ProjectDependency> allowedProjectDependencies = new ArrayList<ProjectDependency>();
+    List<AllowedDependency> allowedProjectDependencies = new ArrayList<AllowedDependency>();
 
-    allowedProjectDependencies.add(new ProjectDependency("test.to.key", "1.2.3", null));
+    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "1.2.3", null));
     assertTrue(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
 
     allowedProjectDependencies.remove(0);
-    allowedProjectDependencies.add(new ProjectDependency("test.to.key", "", null));
+    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "", null));
     assertTrue(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
   }
 
@@ -63,13 +63,13 @@ public class UtilitiesTest {
    */
   @Test
   public void dependencyVersionRangeFixedVersionTest() {
-    List<ProjectDependency> allowedProjectDependencies = new ArrayList<ProjectDependency>();
-    allowedProjectDependencies.add(new ProjectDependency("test.to.key", "[1.2.3]", null));
+    List<AllowedDependency> allowedProjectDependencies = new ArrayList<AllowedDependency>();
+    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[1.2.3]", null));
 
     assertTrue(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
 
     allowedProjectDependencies.remove(0);
-    allowedProjectDependencies.add(new ProjectDependency("test.to.key", "[1.2.30]", null));
+    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[1.2.30]", null));
     assertFalse(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
   }
 
@@ -79,18 +79,18 @@ public class UtilitiesTest {
    */
   @Test
   public void dependencyVersionRangeOpenRangeTest() {
-    List<ProjectDependency> allowedProjectDependencies = new ArrayList<ProjectDependency>();
-    allowedProjectDependencies.add(new ProjectDependency("test.to.key", "[1.2.0,]", null));
+    List<AllowedDependency> allowedProjectDependencies = new ArrayList<AllowedDependency>();
+    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[1.2.0,]", null));
 
     assertTrue(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
 
     allowedProjectDependencies.remove(0);
-    allowedProjectDependencies.add(new ProjectDependency("test.to.key", "[,1.2.2]", null));
+    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[,1.2.2]", null));
 
     assertFalse(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
 
     allowedProjectDependencies.remove(0);
-    allowedProjectDependencies.add(new ProjectDependency("test.to.key", "[,1.2.20]", null));
+    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[,1.2.20]", null));
 
     assertTrue(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
   }
@@ -100,18 +100,18 @@ public class UtilitiesTest {
    */
   @Test
   public void dependencyVersionRangeClosedRangeTest() {
-    List<ProjectDependency> allowedProjectDependencies = new ArrayList<ProjectDependency>();
-    allowedProjectDependencies.add(new ProjectDependency("test.to.key", "[1.2.0,1.2.8)", null));
+    List<AllowedDependency> allowedProjectDependencies = new ArrayList<AllowedDependency>();
+    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[1.2.0,1.2.8)", null));
 
     assertTrue(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
 
     allowedProjectDependencies.remove(0);
-    allowedProjectDependencies.add(new ProjectDependency("test.to.key", "[1.0.0,1.2.3)", null));
+    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[1.0.0,1.2.3)", null));
 
     assertFalse(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
 
     allowedProjectDependencies.remove(0);
-    allowedProjectDependencies.add(new ProjectDependency("test.to.key", "[1.2.2,1.2.20]", null));
+    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[1.2.2,1.2.20]", null));
 
     assertTrue(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
   }
@@ -121,13 +121,13 @@ public class UtilitiesTest {
    */
   @Test
   public void dependencyVersionRangeMultipleRangesTest() {
-    List<ProjectDependency> allowedProjectDependencies = new ArrayList<ProjectDependency>();
-    allowedProjectDependencies.add(new ProjectDependency("test.to.key", "[1.0.0,1.2.2)", null));
+    List<AllowedDependency> allowedProjectDependencies = new ArrayList<AllowedDependency>();
+    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[1.0.0,1.2.2)", null));
 
     assertFalse(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
 
     allowedProjectDependencies.remove(0);
-    allowedProjectDependencies.add(new ProjectDependency("test.to.key", "[1.0.0,1.2.2),(1.2.2,1.2.20]", null));
+    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[1.0.0,1.2.2),(1.2.2,1.2.20]", null));
 
     assertTrue(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
   }

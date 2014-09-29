@@ -20,11 +20,16 @@ package org.sonar.plugins.dependencycheck;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newTreeSet;
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.sonar.plugins.dependencycheck.DependencyCheckMetrics.LIBRARY_GLOBAL_PROPERTY;
+import static org.sonar.plugins.dependencycheck.DependencyCheckMetrics.LIBRARY_PROJECT_PROPERTY;
+import static org.sonar.plugins.dependencycheck.DependencyCheckMetrics.LICENSE_PROPERTY;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -79,48 +84,24 @@ public final class DependencyCheckDecorator implements Decorator {
    *
    * @return List of allowed dependencies
    */
-  private List<ProjectDependency> getAllowedProjectDependencies() {
-    List<ProjectDependency> result = newArrayList();
+  private List<AllowedDependency> getAllowedProjectDependencies() {
 
-    String[] allowedDependencies = settings.getStringArray(DependencyCheckMetrics.LIBRARY_PROJECT_PROPERTY);
+    List<AllowedDependency> allowedDependencies = new ArrayList<AllowedDependency>();
 
-    List<License> allowedLicenses = getAllowedLicenses();
+    allowedDependencies.addAll(AllowedDependencies.loadFromXml(settings.getString(LIBRARY_PROJECT_PROPERTY)));
 
-    for (String string : allowedDependencies) {
-      ProjectDependency pd = new ProjectDependency();
-
-      pd.setKey(settings.getString(DependencyCheckMetrics.LIBRARY_PROJECT_PROPERTY + "." + string + "."
-        + DependencyCheckMetrics.LIBRARY_KEY_PROPERTY));
-      pd.setVersionRange(settings.getString(DependencyCheckMetrics.LIBRARY_PROJECT_PROPERTY + "." + string
-        + "." + DependencyCheckMetrics.LIBRARY_VERSION_PROPERTY));
-      pd.setLicense(Utilities.getLicenseByNameOrId(
-          settings.getString(DependencyCheckMetrics.LIBRARY_PROJECT_PROPERTY + "." + string
-            + "." + DependencyCheckMetrics.LIBRARY_LICENSE_PROPERTY), allowedLicenses));
-
-      if (isNotEmpty(pd.getKey())) {
-        result.add(pd);
+    for (AllowedDependency allowedDependency : AllowedDependencies.loadFromXml(settings.getString(LIBRARY_GLOBAL_PROPERTY))) {
+      if (!allowedDependencies.contains(allowedDependency)) {
+        allowedDependencies.add(allowedDependency);
       }
     }
 
-    allowedDependencies = settings.getStringArray(DependencyCheckMetrics.LIBRARY_GLOBAL_PROPERTY);
-
-    for (String string : allowedDependencies) {
-      ProjectDependency pd = new ProjectDependency();
-
-      pd.setKey(settings.getString(DependencyCheckMetrics.LIBRARY_GLOBAL_PROPERTY + "." + string + "."
-        + DependencyCheckMetrics.LIBRARY_KEY_PROPERTY));
-      pd.setVersionRange(settings.getString(DependencyCheckMetrics.LIBRARY_GLOBAL_PROPERTY + "." + string
-        + "." + DependencyCheckMetrics.LIBRARY_VERSION_PROPERTY));
-      pd.setLicense(Utilities.getLicenseByNameOrId(
-          settings.getString(DependencyCheckMetrics.LIBRARY_GLOBAL_PROPERTY + "." + string
-            + "." + DependencyCheckMetrics.LIBRARY_LICENSE_PROPERTY), allowedLicenses));
-
-      if (isNotEmpty(pd.getKey())) {
-        result.add(pd);
-      }
+    Map<String, License> licenses = getLicenses();
+    for (AllowedDependency dependency : allowedDependencies) {
+      dependency.setLicense(licenses.get(dependency.getLicenseId()));
     }
 
-    return result;
+    return allowedDependencies;
   }
 
   private List<String> getAllowedScopes() {
@@ -144,35 +125,16 @@ public final class DependencyCheckDecorator implements Decorator {
   }
 
   /**
-   * @return a List of allowed Licenses for the Project - configurable in settings
+   * @return a Map (id, License) of licenses for the Project - configurable in settings
    */
-  private List<License> getAllowedLicenses() {
-    List<License> allowedLicenses = newArrayList();
-
-    String[] allowed = settings.getStringArray(DependencyCheckMetrics.LICENSE_PROPERTY);
-
-    for (String s : allowed) {
-      License l = new License();
-
-      String temp = DependencyCheckMetrics.LICENSE_PROPERTY.concat("." + s + ".");
-
-      l.setId(settings.getString(temp + DependencyCheckMetrics.LICENSE_ID_PROPERTY));
-      l.setTitle(settings.getString(temp + DependencyCheckMetrics.LICENSE_TITLE_PROPERTY));
-      l.setUrl(settings.getString(temp + DependencyCheckMetrics.LICENSE_URL_PROPERTY));
-      l.setDescription(settings.getString(temp + DependencyCheckMetrics.LICENSE_DESCRIPTION_PROPERTY));
-      l.setCommercial(settings.getBoolean(temp + DependencyCheckMetrics.LICENSE_COMMERCIAL_PROPERTY));
-
-      String sourceType = settings.getString(temp + DependencyCheckMetrics.LICENSE_SOURCETYPE_PROPERTY);
-      if (isNotEmpty(sourceType)) {
-        l.setSourceType(SourceType.valueOf(sourceType));
-      }
-      else {
-        l.setSourceType(SourceType.OPENSOURCE_COPYLEFT);
-      }
-      allowedLicenses.add(l);
+  private Map<String, License> getLicenses() {
+    List<License> licenseList = Licenses.loadFromXml(settings.getString(LICENSE_PROPERTY));
+    
+    Map<String, License> map = new HashMap<String, License>();
+    for (License license : licenseList) {
+      map.put(license.getId(), license);
     }
-
-    return allowedLicenses;
+    return map;
   }
 
   /**
@@ -187,7 +149,7 @@ public final class DependencyCheckDecorator implements Decorator {
    * @param allowedProjectDependencies - list of the allowed dependencies
    */
   private void checkDependency(Project project, Resource dependency, Set<String> allDependencies,
-      Set<String> allLicenses, List<ProjectDependency> allowedProjectDependencies) {
+      Set<String> allLicenses, List<AllowedDependency> allowedProjectDependencies) {
 
     final String dependencyKey = dependency.getKey();
     final String dependencyVersion = ((Library) dependency).getVersion();
@@ -237,7 +199,10 @@ public final class DependencyCheckDecorator implements Decorator {
 
       License l = Utilities.getLicense(dependencyKey, allowedProjectDependencies);
 
-      allLicenses.add(l.getTitle() + "~" + l.getUrl());
+      if (l != null) {
+        allLicenses.add(l.getTitle() + "~" + l.getUrl());
+      }
+
     }
   }
 
@@ -257,10 +222,10 @@ public final class DependencyCheckDecorator implements Decorator {
 
     LOGGER.debug("Dependency check for project: {}", project);
 
-    List<ProjectDependency> allowedProjectDependencies = getAllowedProjectDependencies();
+    List<AllowedDependency> allowedProjectDependencies = getAllowedProjectDependencies();
 
     for (Resource dependency : findTransitiveDependencies(resource.getKey(), buildDependencyTree(context.getDependencies()))) {
-        checkDependency(project, dependency, dependencyAnalysisResult, lincenseAnalysisResult, allowedProjectDependencies);
+      checkDependency(project, dependency, dependencyAnalysisResult, lincenseAnalysisResult, allowedProjectDependencies);
     }
 
     saveProjectMeasures(context, lincenseAnalysisResult, dependencyAnalysisResult);
@@ -269,7 +234,7 @@ public final class DependencyCheckDecorator implements Decorator {
   private Multimap<String, Dependency> buildDependencyTree(Set<Dependency> dependencies) {
     LOGGER.debug("Got dependencies: {}", dependencies);
 
-    Multimap<String, Dependency> dependencyTree = ArrayListMultimap.create(); 
+    Multimap<String, Dependency> dependencyTree = ArrayListMultimap.create();
     for (Dependency d : dependencies) {
       if (ResourceUtils.isLibrary(d.getTo()) // only include libraries
         && Utilities.inCheckScope(d, getAllowedScopes())) {

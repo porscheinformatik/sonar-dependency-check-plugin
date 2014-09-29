@@ -17,62 +17,71 @@
  */
 package org.sonar.plugins.dependencycheck;
 
+import javax.xml.bind.annotation.XmlElement;
+
 /**
  * This class stores a License which is used in the plugin.
  */
 public class License {
+  @XmlElement
   private String id;
+  @XmlElement
   private String title;
+  @XmlElement
   private String description;
+  @XmlElement
   private String url;
+  @XmlElement
   private SourceType sourceType;
+  @XmlElement
   private boolean commercial;
+
+  /**
+   * Creates empty license.
+   */
+  public License() {
+    super();
+  }
+
+  /**
+   * @param id .
+   * @param title .
+   * @param description .
+   * @param url .
+   * @param sourceType .
+   * @param commercial .
+   */
+  public License(String id, String title, String description, String url, SourceType sourceType, boolean commercial) {
+    super();
+    this.id = id;
+    this.title = title;
+    this.description = description;
+    this.url = url;
+    this.sourceType = sourceType;
+    this.commercial = commercial;
+  }
 
   public String getId() {
     return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
   }
 
   public String getTitle() {
     return title;
   }
 
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
   public String getDescription() {
     return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
   }
 
   public String getUrl() {
     return url == null ? "" : url;
   }
 
-  public void setUrl(String url) {
-    this.url = url;
-  }
-
   public SourceType getSourceType() {
     return sourceType;
   }
 
-  public void setSourceType(SourceType sourceType) {
-    this.sourceType = sourceType;
-  }
-
   public boolean isCommercial() {
     return commercial;
-  }
-
-  public void setCommercial(boolean commercial) {
-    this.commercial = commercial;
   }
 }
