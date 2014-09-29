@@ -18,6 +18,7 @@
 package org.sonar.plugins.dependencycheck;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -38,97 +39,53 @@ public class UtilitiesTest {
     List<AllowedDependency> allowedProjectDependencies = new ArrayList<AllowedDependency>();
     allowedProjectDependencies.add(new AllowedDependency("test.to.key", "1.2.3", null));
 
-    assertTrue(Utilities.dependencyInList("test.to.key", allowedProjectDependencies));
+    assertNotNull(Utilities.searchForProjectDependency("test.to.key", allowedProjectDependencies));
   }
 
   /**
-   * Tests Function Utilities.dependencyInVersionRange(Dependency d, List<ProjectDependency> allowedProjectDependencies)
-   * for cases where every vesion is allowed
+   * Tests Function {@link Utilities#versionAllowed(String, String)} for cases where every vesion is allowed
    */
   @Test
   public void dependencyVersionRangeAllVersionsTest() {
-    List<AllowedDependency> allowedProjectDependencies = new ArrayList<AllowedDependency>();
-
-    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "1.2.3", null));
-    assertTrue(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
-
-    allowedProjectDependencies.remove(0);
-    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "", null));
-    assertTrue(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
+    assertTrue(Utilities.versionAllowed("1.2.3", "1.2.3"));
+    assertTrue(Utilities.versionAllowed("1.2.3", ""));
   }
 
   /**
-   * Tests Function Utilities.dependencyInVersionRange(Dependency d, List<ProjectDependency> allowedProjectDependencies)
-   * for cases where only fixed versions are allowed
+   * Tests Function {@link Utilities#versionAllowed(String, String)} for cases where only fixed versions are allowed
    */
   @Test
   public void dependencyVersionRangeFixedVersionTest() {
-    List<AllowedDependency> allowedProjectDependencies = new ArrayList<AllowedDependency>();
-    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[1.2.3]", null));
-
-    assertTrue(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
-
-    allowedProjectDependencies.remove(0);
-    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[1.2.30]", null));
-    assertFalse(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
+    assertTrue(Utilities.versionAllowed("1.2.3", "[1.2.3]"));
+    assertFalse(Utilities.versionAllowed("1.2.3", "[1.2.30]"));
   }
 
   /**
-   * Tests Function Utilities.dependencyInVersionRange(Dependency d, List<ProjectDependency> allowedProjectDependencies)
-   * for cases where open Ranges are allowed
+   * Tests Function {@link Utilities#versionAllowed(String, String)} for cases where open Ranges are allowed
    */
   @Test
   public void dependencyVersionRangeOpenRangeTest() {
-    List<AllowedDependency> allowedProjectDependencies = new ArrayList<AllowedDependency>();
-    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[1.2.0,]", null));
-
-    assertTrue(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
-
-    allowedProjectDependencies.remove(0);
-    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[,1.2.2]", null));
-
-    assertFalse(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
-
-    allowedProjectDependencies.remove(0);
-    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[,1.2.20]", null));
-
-    assertTrue(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
+    assertTrue(Utilities.versionAllowed("1.2.3", "[1.2.0,]"));
+    assertFalse(Utilities.versionAllowed("1.2.3", "[,1.2.2]"));
+    assertTrue(Utilities.versionAllowed("1.2.3", "[,1.2.20]"));
   }
+
   /**
-   * Tests Function Utilities.dependencyInVersionRange(Dependency d, List<ProjectDependency> allowedProjectDependencies)
-   * for cases where closed Ranges are allowed
+   * Tests Function {@link Utilities#versionAllowed(String, String)} for cases where closed Ranges are allowed
    */
   @Test
   public void dependencyVersionRangeClosedRangeTest() {
-    List<AllowedDependency> allowedProjectDependencies = new ArrayList<AllowedDependency>();
-    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[1.2.0,1.2.8)", null));
-
-    assertTrue(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
-
-    allowedProjectDependencies.remove(0);
-    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[1.0.0,1.2.3)", null));
-
-    assertFalse(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
-
-    allowedProjectDependencies.remove(0);
-    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[1.2.2,1.2.20]", null));
-
-    assertTrue(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
+    assertTrue(Utilities.versionAllowed("1.2.3", "[1.2.0,1.2.8)"));
+    assertFalse(Utilities.versionAllowed("1.2.3", "[1.0.0,1.2.3)"));
+    assertTrue(Utilities.versionAllowed("1.2.3", "[1.2.2,1.2.20]"));
   }
+
   /**
-   * Tests Function Utilities.dependencyInVersionRange(Dependency d, List<ProjectDependency> allowedProjectDependencies)
-   * for cases where multiple Ranges are allowed
+   * Tests Function {@link Utilities#versionAllowed(String, String)} for cases where multiple Ranges are allowed
    */
   @Test
   public void dependencyVersionRangeMultipleRangesTest() {
-    List<AllowedDependency> allowedProjectDependencies = new ArrayList<AllowedDependency>();
-    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[1.0.0,1.2.2)", null));
-
-    assertFalse(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
-
-    allowedProjectDependencies.remove(0);
-    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "[1.0.0,1.2.2),(1.2.2,1.2.20]", null));
-
-    assertTrue(Utilities.dependencyInVersionRange("test.to.key", "1.2.3", allowedProjectDependencies));
+    assertFalse(Utilities.versionAllowed("1.2.3", "[1.0.0,1.2.2)"));
+    assertTrue(Utilities.versionAllowed("1.2.3", "[1.0.0,1.2.2),(1.2.2,1.2.20]"));
   }
 }

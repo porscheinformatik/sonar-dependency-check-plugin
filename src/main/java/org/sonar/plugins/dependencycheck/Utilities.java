@@ -59,39 +59,13 @@ public final class Utilities {
   }
 
   /**
-   * Searches through the list of allowed dependencies.
-   *
-   * @param dependencyKey the key of the currently handled dependency
-   * @param allowedProjectDependencies - list of allowed dependencies
-   * @return true if the dependency is in the allowed list
-   */
-  static boolean dependencyInList(String dependencyKey, List<AllowedDependency> allowedProjectDependencies) {
-    AllowedDependency pd = searchForProjectDependency(dependencyKey, allowedProjectDependencies);
-
-    return pd != null ? true : false;
-  }
-
-  /**
-   * searches for the currently handled dependency and checks if it is in the allowed version range (true)
-   *
-   * @param dependencyKey key of the dependency
-   * @param dependencyVersion version of the dependency
-   * @param allowedProjectDependencies - list of available dependencies
-   * @return dependency in version range
-   */
-  static boolean dependencyInVersionRange(String dependencyKey, String dependencyVersion, List<AllowedDependency> allowedProjectDependencies) {
-    AllowedDependency pd = searchForProjectDependency(dependencyKey, allowedProjectDependencies);
-    return pd != null ? versionAllowed(dependencyVersion, pd.getVersionRange()) : false;
-  }
-
-  /**
    * Checks if the version used is in the allowed range.
    *
    * @param versionUsed - used versions
    * @param versionRange - allowed versions
    * @return true if version used is in range
    */
-  private static boolean versionAllowed(String versionUsed, String versionRange) {
+  static boolean versionAllowed(String versionUsed, String versionRange) {
 
     String[] subVersions = versionUsed.split(SPLIT_BY_DOT);
 
@@ -323,7 +297,7 @@ public final class Utilities {
    * @param allowedProjectDependencies - list of allowed dependencies
    * @return found project dependency
    */
-  private static AllowedDependency searchForProjectDependency(String dependencyKey, List<AllowedDependency> allowedProjectDependencies) {
+  static AllowedDependency searchForProjectDependency(String dependencyKey, List<AllowedDependency> allowedProjectDependencies) {
     for (AllowedDependency projectDependency : allowedProjectDependencies) {
       if (dependencyKey.startsWith(projectDependency.getKey())) {
         return projectDependency;

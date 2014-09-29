@@ -44,7 +44,11 @@
                                 when 'UNLISTED', 'Unlisted'
                                     image_tag('/images/levels/error.png', :alt => 'Unlisted dependency')
                                 when 'WRONG_VERSION', 'Wrong Version'
-                                    image_tag('/images/levels/warn.png', :alt => 'Wrong version')
+                                    if row[5].nil?
+                                        image_tag('/images/levels/warn.png', :alt => 'Wrong version')
+                                    else
+                                        image_tag('/images/levels/warn.png', :alt => 'Wrong version, allowed ' + row[5])
+                                    end
                                 else
                                     'Unknown status'
                             end

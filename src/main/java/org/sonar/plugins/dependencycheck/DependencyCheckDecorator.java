@@ -156,7 +156,9 @@ public final class DependencyCheckDecorator implements Decorator {
 
     LOGGER.debug("Checking dependency: {}", dependencyKey);
 
-    if (!Utilities.dependencyInList(dependencyKey, allowedProjectDependencies)) {
+    AllowedDependency allowedDepenedency = Utilities.searchForProjectDependency(dependencyKey, allowedProjectDependencies);
+    
+    if (allowedDepenedency == null) {
 
       allDependencies.add(dependencyKey + "~" + "no license information" + "~" + "UNLISTED");
 
@@ -171,9 +173,10 @@ public final class DependencyCheckDecorator implements Decorator {
       }
     }
 
-    else if (!Utilities.dependencyInVersionRange(dependencyKey, dependencyVersion, allowedProjectDependencies)) {
+    else if (!Utilities.versionAllowed(dependencyVersion, allowedDepenedency.getVersionRange())) {
 
-      allDependencies.add(dependencyKey + "~" + Utilities.getLicenseName(dependencyKey, allowedProjectDependencies) + "~" + "WRONG_VERSION");
+      allDependencies.add(dependencyKey + "~" + Utilities.getLicenseName(dependencyKey, allowedProjectDependencies) 
+          + "~" + "WRONG_VERSION~" + allowedDepenedency.getVersionRange());
 
       License l = Utilities.getLicense(dependencyKey, allowedProjectDependencies);
       allLicenses.add(l.getTitle() + "~" + l.getUrl());

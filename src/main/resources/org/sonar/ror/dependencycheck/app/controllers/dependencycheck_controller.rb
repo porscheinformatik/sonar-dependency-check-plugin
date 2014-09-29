@@ -47,6 +47,7 @@ class DependencycheckController < ApplicationController
         depMeasure = @snapshot.measure('dependencycheck.dependency').data
         checkedDependencies = depMeasure.split(';')
         entries = []
+        allowedVersions = nil
         dependencies.each do |dep|
             license = ''
             status = ''
@@ -55,11 +56,14 @@ class DependencycheckController < ApplicationController
                 if dep.to.key == d[0]
                     license = d[1]
                     status = d[2]
+                    if d.length > 3
+                        allowedVersions = d[3]
+                    end
                     break 
                 end
             end
             if status != ''
-                entries.push([dep.to.name, dep.dep_usage, dep.to_snapshot.version, license, status])
+                entries.push([dep.to.name, dep.dep_usage, dep.to_snapshot.version, license, status, allowedVersions])
             end
         end
 
