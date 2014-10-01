@@ -1,0 +1,70 @@
+<h1 class="admin-page-title">Dependency Check Configuration</h1>
+&nbsp;
+<ul class="tabs">
+    <li>
+        <a href="<%= ApplicationController.root_context -%>/dependencycheck_configuration/index">GlobalDependencies</a>
+    </li>
+    <li>
+        <a class="selected" href="<%= ApplicationController.root_context -%>/dependencycheck_configuration/licenses">Licenses</a>
+    </li>
+</ul>
+&nbsp;
+<% if @error %>
+    <div class="error"><%= @error %></div>
+<% end %>
+<%
+form_tag :action => 'addLicenses' do
+%>
+<table class="data" id="allowedLibraryTable">
+    <caption>This table shows all allowed licenses.</caption>
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Title</th>
+        <th>Description</th>
+        <th>URL</th>
+        <th>Commercial</th>
+        <th>Source Type</th>
+      </tr>
+    </thead>
+
+    <tbody>
+        <tr class="top">
+            <td><%= text_field_tag :id, nil, :placeholder=> 'Shortage of the License title', :size=> 20, :required=>'required' %></td>
+            <td><%= text_field_tag :title, nil, :placeholder=> 'Title of the allowed license', :size=> 35, :required=>'required' %></td>
+            <td><%= text_area_tag :description, nil, :placeholder=> 'Description of the license', :rows=> 3, :cols=> 50 %></td>
+            <td><%= text_field_tag :url, nil, :type=> 'url', :placeholder=> 'Link to license text', :size=> 40 %></td>
+            <td><%= select_tag :commercial, options_for_select([false, true])%></td>
+            <td><%= select_tag :sourceType, options_for_select([['OPENSOURCE_NO_COPYLEFT'],['OPENSOURCE_COPYLEFT'],['CLOSED']])%></td>
+            <td><%= submit_tag "add it " %></td>
+        </tr>
+<%
+        if !@allowedLicenses.blank?
+            index = 0
+            @allowedLicenses.elements.each('/licenses/license') do |e|
+                rowClass = ((index % 2) == 0) ? "even" : "odd"
+                index += 1
+                url = e.elements['url']
+                description = e.elements['description']
+%>
+                <tr class="<%=rowClass %>">
+                    <td><%= e.elements['id'].text %></td>
+                    <td><%=h e.elements['title'].text %></td>
+                    <td style="white-space: pre-wrap;"><%=h description.text unless description == nil || !description.has_text? %></td>
+                    <td><%= link_to url.text, url.text unless url == nil || !url.has_text? %></td>
+                    <td><%=h e.elements['commercial'].text %></td>
+                    <td><%=h e.elements['sourceType'].text %></td>
+                    <td><a href="<%= ApplicationController.root_context -%>/dependencycheck_configuration/deleteLicense?id=<%= e.elements['id'].text %>"><button type="button">delete</button></a>
+                    </td>
+                </tr>
+<%
+                end
+            end
+%>
+
+    </tbody>
+
+</table>
+<%
+end
+%>

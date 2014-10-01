@@ -53,6 +53,18 @@ public final class DependencyCheckPlugin extends SonarPlugin {
         .description("Insert information about the allowed Libraries")
         .type(PropertyType.TEXT)
         .fields(libraryField)
+        .hidden()
+        .build()
+        );
+
+    extensions.add(PropertyDefinition.builder(DependencyCheckMetrics.LICENSE_PROPERTY)
+        .category(category)
+        .subCategory(subLicense)
+        .name("Licenses (XML)")
+        .description("Insert information about the allowed Licenses")
+        .type(PropertyType.TEXT)
+        .fields(licenseField)
+        .hidden()
         .build()
         );
 
@@ -64,16 +76,6 @@ public final class DependencyCheckPlugin extends SonarPlugin {
         .type(PropertyType.TEXT)
         .fields(libraryField)
         .onlyOnQualifiers(Qualifiers.PROJECT)
-        .build()
-        );
-
-    extensions.add(PropertyDefinition.builder(DependencyCheckMetrics.LICENSE_PROPERTY)
-        .category(category)
-        .subCategory(subLicense)
-        .name("Licenses (XML)")
-        .description("Insert information about the allowed Licenses")
-        .type(PropertyType.TEXT)
-        .fields(licenseField)
         .build()
         );
 
@@ -121,6 +123,7 @@ public final class DependencyCheckPlugin extends SonarPlugin {
     extensions.add(DependencyCheckMetrics.class);
     extensions.add(DependencyCheckDecorator.class);
     extensions.add(DependencyCheckPage.class);
+    extensions.add(DependencyCheckConfigurationPage.class);
 
     return extensions.build();
   }

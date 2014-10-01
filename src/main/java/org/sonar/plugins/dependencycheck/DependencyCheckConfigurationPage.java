@@ -17,25 +17,25 @@
  */
 package org.sonar.plugins.dependencycheck;
 
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.Page;
-import org.sonar.api.web.RequiredMeasures;
-import org.sonar.api.web.ResourceQualifier;
+import org.sonar.api.web.NavigationSection;
+import org.sonar.api.web.UserRole;
 
 /**
- * Page showing the dependency check result.
+ * Configuration for licenses and dependencies.
  */
-@RequiredMeasures(allOf = {DependencyCheckMetrics.DEPENDENCY_CHECK_DEPENDENCY_KEY, DependencyCheckMetrics.DEPENDENCY_CHECK_LICENSE_KEY})
-@ResourceQualifier({Qualifiers.PROJECT, Qualifiers.MODULE})
-@NavigationSection({NavigationSection.RESOURCE})
-public class DependencyCheckPage implements Page {
+@NavigationSection(NavigationSection.CONFIGURATION)
+@UserRole(UserRole.ADMIN)
+public class DependencyCheckConfigurationPage implements Page {
 
+  @Override
   public String getId() {
-    return "/dependencycheck";
+    return "/dependencycheck_configuration";
   }
 
+  @Override
   public String getTitle() {
     return "Dependency Check";
   }
+
 }
