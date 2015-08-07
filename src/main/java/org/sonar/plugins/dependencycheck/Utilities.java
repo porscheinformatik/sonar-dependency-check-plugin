@@ -299,7 +299,7 @@ public final class Utilities {
    */
   static AllowedDependency searchForProjectDependency(String dependencyKey, List<AllowedDependency> allowedProjectDependencies) {
     for (AllowedDependency projectDependency : allowedProjectDependencies) {
-      if (dependencyKey.startsWith(projectDependency.getKey())) {
+      if (dependencyKey.equals(projectDependency.getKey())) {
         return projectDependency;
       }
     }
