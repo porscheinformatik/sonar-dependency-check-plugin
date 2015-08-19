@@ -48,6 +48,7 @@ public class UtilitiesTest {
   @Test
   public void dependencyVersionRangeAllVersionsTest() {
     assertTrue(Utilities.versionAllowed("1.2.3", "1.2.3"));
+    assertTrue(Utilities.versionAllowed("1.2.3", "0"));
     assertTrue(Utilities.versionAllowed("1.2.3", ""));
   }
 
@@ -87,5 +88,10 @@ public class UtilitiesTest {
   public void dependencyVersionRangeMultipleRangesTest() {
     assertFalse(Utilities.versionAllowed("1.2.3", "[1.0.0,1.2.2)"));
     assertTrue(Utilities.versionAllowed("1.2.3", "[1.0.0,1.2.2),(1.2.2,1.2.20]"));
+    assertTrue(Utilities.versionAllowed("4.1.5.RELEASE", "[4.1.4.RELEASE,),[4.0.9.RELEASE]"));
+    assertTrue(Utilities.versionAllowed("4.0.9.RELEASE", "[4.1.4.RELEASE,),[4.0.9.RELEASE]"));
+    assertTrue(Utilities.versionAllowed("3.1.9.RELEASE", "[3.1.4.RELEASE,3.2),[3.2.8.RELEASE,3.3),[4.0.7.RELEASE,)"));
+    assertTrue(Utilities.versionAllowed("4.0.9.RELEASE", "[3.1.4.RELEASE,3.2),[3.2.8.RELEASE,3.3),[4.0.7.RELEASE,)"));
+    assertFalse(Utilities.versionAllowed("3.2.7.RELEASE", "[4.0.7.RELEASE,),[3.1.4.RELEASE,3.2),[3.2.8.RELEASE,3.3)"));
   }
 }
