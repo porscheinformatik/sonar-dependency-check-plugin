@@ -9,6 +9,10 @@ This Sonar plugin ensures that projects in an organization adhere to a set of st
 
 This software is licensed under the Apache Software License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0.txt
 
+## Compatibility
+
+SonarQube >= 4.4 and < 5.0
+
 ## Features
 
 ### Analysis
