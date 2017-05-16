@@ -18,6 +18,7 @@
 package org.sonar.plugins.dependencycheck;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -41,6 +42,18 @@ public class UtilitiesTest {
 
     assertNotNull(Utilities.searchForProjectDependency("test.to.key", allowedProjectDependencies));
   }
+
+  /**
+   * Tests Function Utilities.dependencyInList(Dependency d, List<ProjectDependency> allowedProjectDependencies)
+   */
+  @Test
+  public void dependencyNotInListTest() {
+    List<AllowedDependency> allowedProjectDependencies = new ArrayList<AllowedDependency>();
+    allowedProjectDependencies.add(new AllowedDependency("test.to.key", "1.2.3", null));
+
+    assertNull(Utilities.searchForProjectDependency("test.to.key.but.different", allowedProjectDependencies));
+  }
+
 
   /**
    * Tests Function {@link Utilities#versionAllowed(String, String)} for cases where every vesion is allowed
