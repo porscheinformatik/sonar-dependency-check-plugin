@@ -28,7 +28,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.SonarException;
 
 /**
  * Wrapper for XML serializing dependencies.
@@ -42,7 +41,7 @@ public class AllowedDependencies {
       jaxbContext = JAXBContext.newInstance(AllowedDependencies.class);
     }
     catch (JAXBException e) {
-      throw new SonarException("Failure creating JAXBContext for AllowedDependencies", e);
+      throw new IllegalStateException("Failure creating JAXBContext for AllowedDependencies", e);
     }
   }
 
@@ -70,7 +69,7 @@ public class AllowedDependencies {
       return allowedDependencies.dependencies;
     }
     catch (JAXBException e) {
-      throw new SonarException("Failure parsing XML for allowed dependencies", e);
+      throw new IllegalStateException("Failure parsing XML for allowed dependencies", e);
     }
   }
 }

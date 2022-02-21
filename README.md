@@ -3,11 +3,17 @@ Dependency Check Sonar Plugin
 
 [![Build Status](https://travis-ci.org/porscheinformatik/sonar-dependency-check-plugin.png?branch=master)](https://travis-ci.org/porscheinformatik/sonar-dependency-check-plugin)
 
+:warning: This Plugin is deprecated - use https://github.com/porscheinformatik/sonarqube-licensecheck instead
+
 This Sonar plugin ensures that projects in an organization adhere to a set of standard libraries and versions. This enables the governance of the used libraries and licences.
 
 ## License
 
 This software is licensed under the Apache Software License, Version 2.0, http://www.apache.org/licenses/LICENSE-2.0.txt
+
+## Compatibility
+
+SonarQube >= 4.4 and < 5.0
 
 ## Features
 

@@ -92,9 +92,6 @@
     </module>
   </module>
   <module name="Translation"/>
-  <module name="StrictDuplicateCode">
-    <property name="min" value="50"/>
-  </module>
   <module name="FileTabCharacter"/>
   <module name="SuppressionCommentFilter"/>
 </module>
